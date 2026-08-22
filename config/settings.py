@@ -112,6 +112,7 @@ INSTALLED_APPS = [
     "catalog",
     "interactions",
     "recommendations",
+    "chat",
 ]
 
 MIDDLEWARE = [
@@ -213,6 +214,7 @@ REST_FRAMEWORK = {
         "user": "240/min",
         "auth": "20/min",  # register / token obtain
         "writes": "60/min",  # bookmarks / reviews / view tracking
+        "chat": "20/min",  # live LLM fan-outs — the API-cost control valve
     },
 }
 
@@ -222,6 +224,7 @@ if env_bool("TESTING", False):  # keep scoped throttles from failing test runs
         "user": "100000/min",
         "auth": "100000/min",
         "writes": "100000/min",
+        "chat": "100000/min",
     }
 
 # ---------------------------------------------------------------------------

@@ -19,3 +19,4 @@ redis>=5.0
 # restricted networks) skip this line and set EMBEDDING_BACKEND=hash — every other
 # feature is identical, vectors are still 384-dim and stored/query in pgvector.
 sentence-transformers>=3.0
+httpx>=0.27

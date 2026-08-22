@@ -22,6 +22,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from accounts.serializers import CustomTokenObtainPairSerializer
 from accounts.views import MeView, RegisterView
 from catalog.views import CategoryViewSet, TagViewSet, ToolViewSet
+from chat.views import ChatModelsView, TurnDetailView, TurnStreamView, TurnView
 from interactions.views import BookmarkViewSet, ReviewViewSet
 from recommendations.views import RecommendationListView
 
@@ -47,6 +48,15 @@ urlpatterns = [
     path("auth/me/", MeView.as_view(), name="auth-me"),
     # Recommendations
     path("recommendations/", RecommendationListView.as_view(), name="recommendations"),
+    # Multi-model chat comparison (Section 4)
+    path("chat/models/", ChatModelsView.as_view(), name="chat-models"),
+    path("chat/turns/", TurnView.as_view(), name="chat-turn-create"),
+    path(
+        "chat/turns/<uuid:turn_id>/stream/<str:model_id>/",
+        TurnStreamView.as_view(),
+        name="chat-turn-stream",
+    ),
+    path("chat/turns/<uuid:turn_id>/", TurnDetailView.as_view(), name="chat-turn-detail"),
     # Routers
     path("", include(router.urls)),
 ]
