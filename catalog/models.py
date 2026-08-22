@@ -10,16 +10,19 @@ its embedding lands.
 
 Indexes:
   * btree on category / pricing_tier  -> faceted filtering
-  * ivfflat (cosine) on embedding     -> approximate nearest-neighbour search.
-    ivfflat builds centroids at index time, so it is created here (lists=100)
-    and refreshed with REINDEX / `python manage.py backfill_embeddings
-    --reindex` as the catalog grows. Below a few thousand rows Postgres will
-    typically still prefer a seq scan, which is fine for our scale.
+  * ivfflat (cosine) on embedding     -> approximate nearest-neighbour search,
+    for when the catalog is large enough to justify it. It is NOT part of the
+    initial migration on purpose: with few hundred rows Postgres seq-scans
+    (exact, fast), while an ivfflat index with default probes=1 would DROP
+    results (k-means lists on a tiny table -> rows land in lists the probe
+    never visits). `manage.py backfill_embeddings --vector-index` creates it
+    once >= MIN_ROWS_FOR_IVFFLAT tools exist (lists ~= rows/1000), and
+    catalog/db.py raises ivfflat.probes for vector-ordered queries.
 """
 from django.conf import settings
 from django.db import models
 from django.db.models.functions import Lower
-from pgvector.django import IvfflatIndex, VectorField
+from pgvector.django import VectorField
 
 EMBEDDING_DIM = settings.EMBEDDING_DIM
 
@@ -99,12 +102,8 @@ class Tool(models.Model):
         indexes = [
             models.Index(fields=["category"]),
             models.Index(fields=["pricing_tier"]),
-            IvfflatIndex(
-                name="tool_embedding_ivfflat",
-                fields=["embedding"],
-                lists=100,
-                opclasses=["vector_cosine_ops"],
-            ),
+            # NOTE: the ivfflat ANN index on `embedding` is intentionally NOT
+            # here — see the module docstring and catalog/db.py.
         ]
 
     def __str__(self) -> str:

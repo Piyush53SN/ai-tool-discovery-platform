@@ -35,7 +35,13 @@ class RegisterSerializer(serializers.Serializer):
         return value
 
     def validate_password(self, value: str) -> str:
-        validate_password(value)
+        # Pass a tentative user so UserAttributeSimilarityValidator can
+        # compare the password against the chosen username/email.
+        tentative = User(
+            username=self.initial_data.get("username", ""),
+            email=self.initial_data.get("email", "") or "",
+        )
+        validate_password(value, user=tentative)
         return value
 
     def create(self, validated_data: dict):

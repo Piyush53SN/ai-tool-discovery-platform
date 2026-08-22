@@ -135,6 +135,10 @@ if _qs_host:
 
 DATABASES["default"]["ATOMIC_REQUESTS"] = False
 
+if env_bool("TESTING", False):
+    # Persistent connections keep the test database "in use" at teardown.
+    DATABASES["default"]["CONN_MAX_AGE"] = 0
+
 # ---------------------------------------------------------------------------
 # Authentication / JWT
 # ---------------------------------------------------------------------------
@@ -168,7 +172,11 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_PAGINATION_CLASS": "config.pagination.DefaultPagination",
     "PAGE_SIZE": 12,
-    "DEFAULT_THROTTLE_CLASSES": (
+    # Throttling is a production NFR; the test suite intentionally hammers
+    # endpoints, so rates are disabled when TESTING=1 (see conftest.py).
+    "DEFAULT_THROTTLE_CLASSES": ()
+    if env_bool("TESTING", False)
+    else (
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
     ),
@@ -179,6 +187,14 @@ REST_FRAMEWORK = {
         "writes": "60/min",  # bookmarks / reviews / view tracking
     },
 }
+
+if env_bool("TESTING", False):  # keep scoped throttles from failing test runs
+    REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {
+        "anon": "100000/min",
+        "user": "100000/min",
+        "auth": "100000/min",
+        "writes": "100000/min",
+    }
 
 # ---------------------------------------------------------------------------
 # CORS — restricted to the frontend origin(s).

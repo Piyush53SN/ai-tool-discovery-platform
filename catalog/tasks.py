@@ -102,7 +102,7 @@ def batch_generate_embeddings(tool_ids: list[int], force: bool = True) -> tuple[
 
     ok = 0
     with transaction.atomic():
-        for tool, vector in zip(tools, vectors):
+        for tool, vector in zip(tools, vectors, strict=True):
             ok += Tool.objects.filter(pk=tool.pk).update(
                 embedding=vector.tolist(), embedding_updated_at=stamp
             )

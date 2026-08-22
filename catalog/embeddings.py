@@ -108,7 +108,7 @@ class HashingEmbedder(BaseEmbedder):
     def _ngrams(cls, text: str) -> list[str]:
         tokens = cls._tokens(text)
         grams = list(tokens)
-        grams.extend(f"{a} {b}" for a, b in zip(tokens, tokens[1:]))
+        grams.extend(f"{a} {b}" for a, b in zip(tokens, tokens[1:], strict=False))
         return grams
 
     def _bucket_and_sign(self, gram: str) -> tuple[int, int]:

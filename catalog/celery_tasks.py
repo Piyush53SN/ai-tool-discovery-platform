@@ -7,6 +7,7 @@ refers to recommendations.tasks.recompute_all_preference_vectors, defined the
 same way there.
 """
 from config.celery import app
+
 from .tasks import batch_generate_embeddings, generate_tool_embedding
 
 

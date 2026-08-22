@@ -1,5 +1,6 @@
 """Celery wrappers for preference-vector jobs (see catalog/celery_tasks.py)."""
 from config.celery import app
+
 from .tasks import run_for_all_users, run_for_user
 
 

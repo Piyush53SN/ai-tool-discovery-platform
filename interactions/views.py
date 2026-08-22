@@ -77,6 +77,10 @@ class ReviewViewSet(
 
     def get_queryset(self):
         qs = Review.objects.select_related("tool", "user")
+        # Object actions operate on the whole table so ownership is enforced
+        # (with a 403) rather than masked by a queryset-filtered 404.
+        if self.action in ("retrieve", "destroy", "update", "partial_update"):
+            return qs
         # ?tool=<slug> -> that tool's public review thread (readable by anyone)
         tool_slug = self.request.query_params.get("tool")
         if tool_slug:

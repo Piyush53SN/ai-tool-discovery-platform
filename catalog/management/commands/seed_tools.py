@@ -19,17 +19,16 @@ Steps:
 from __future__ import annotations
 
 import random
-from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils.text import slugify
 
+from catalog.management.commands.tool_data import CATEGORIES, REAL_TOOLS, TAGS
 from catalog.models import Category, Tag, Tool
 from catalog.tasks import batch_generate_embeddings
-from catalog.management.commands.tool_data import CATEGORIES, REAL_TOOLS, TAGS
-from interactions.models import Interaction, InteractionType, INTERACTION_WEIGHTS, review_weight
+from interactions.models import INTERACTION_WEIGHTS, Interaction, InteractionType, review_weight
 from interactions.services import recompute_rating_stats
 from recommendations.services import recompute_preference_vector
 
@@ -131,10 +130,11 @@ class Command(BaseCommand):
         categories = self._seed_categories()
         tags = self._seed_tags()
 
-        created_tools = self._seed_real_tools(categories, tags)
-        if count > len(REAL_TOOLS):
-            created_tools += self._seed_synthetic_tools(
-                categories, tags, rng, target=count - len(REAL_TOOLS)
+        self._seed_real_tools(categories, tags)
+        existing_total = Tool.objects.count()
+        if count > existing_total:
+            self._seed_synthetic_tools(
+                categories, tags, rng, target=count - existing_total
             )
 
         # One batched pass over everything missing a fresh embedding.

@@ -148,7 +148,15 @@ def get_preference_vector(user, allow_lazy: bool = True) -> list[float] | None:
 
 
 def preference_is_fresh(user) -> bool:
-    profile = getattr(user, "profile", None)
+    """True when the cached vector exists and no interaction is newer.
+
+    Re-fetches the profile row: the recommendation flow may have just
+    recomputed the vector via queryset.update(), which cannot be observed
+    through a stale in-memory `user.profile`.
+    """
+    from accounts.models import Profile
+
+    profile = Profile.objects.filter(user=user).first()
     return bool(
         profile
         and profile.preference_vector is not None
@@ -321,14 +329,19 @@ def recommend_for_user(user, limit: int | None = None, diversify: bool | None = 
         return recs, strategy
 
     # ---------------- personalised cosine ranking (pgvector <=> in SQL) -----
-    # Fetch limit*CANDIDATE_MULTIPLIER nearest neighbours in one indexed
-    # query; exclusions (already bookmarked) compose with the vector sort.
-    queryset = (
-        Tool.objects.filter(embedding__isnull=False)
-        .exclude(pk__in=already_bookmarked)
-        .annotate(distance=CosineDistance("embedding", preference))
-        .order_by("distance")[: limit * CANDIDATE_MULTIPLIER]
-    )
+    # Fetch limit*CANDIDATE_MULTIPLIER nearest neighbours in one query;
+    # exclusions (already bookmarked) compose with the vector sort. The
+    # ivfflat_probes context raises ANN probes when the index exists (see
+    # catalog/db.py — the recall/scale tradeoff is documented there).
+    from catalog.db import ivfflat_probes
+
+    with ivfflat_probes():
+        queryset = list(
+            Tool.objects.filter(embedding__isnull=False)
+            .exclude(pk__in=already_bookmarked)
+            .annotate(distance=CosineDistance("embedding", preference))
+            .order_by("distance")[: limit * CANDIDATE_MULTIPLIER]
+        )
 
     tag_names = {
         tool_id: set(names)
@@ -381,12 +394,15 @@ def similar_tools(tool: Tool, limit: int = 3):
     """
     if tool.embedding is None:
         return Tool.objects.none()
-    return (
-        Tool.objects.filter(embedding__isnull=False)
-        .exclude(pk=tool.pk)
-        .annotate(distance=CosineDistance("embedding", tool.embedding))
-        .order_by("distance")[:limit]
-    )
+    from catalog.db import ivfflat_probes
+
+    with ivfflat_probes():
+        return list(
+            Tool.objects.filter(embedding__isnull=False)
+            .exclude(pk=tool.pk)
+            .annotate(distance=CosineDistance("embedding", tool.embedding))
+            .order_by("distance")[:limit]
+        )
 
 
 def trending_tools(days: int = 7, limit: int = 5):
