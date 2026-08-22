@@ -1,0 +1,7 @@
+-r requirements.txt
+
+# Testing / tooling
+pytest>=8.0
+pytest-django>=4.8
+pytest-cov
+ruff>=0.4

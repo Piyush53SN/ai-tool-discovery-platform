@@ -1,0 +1,21 @@
+# Core backend
+Django>=5.0,<5.2
+djangorestframework>=3.15,<3.18
+djangorestframework-simplejwt>=5.3,<5.6
+django-filter>=24.2
+django-cors-headers>=4.4
+psycopg2-binary>=2.9
+dj-database-url>=2.2
+pgvector>=0.3,<0.6
+numpy>=1.26
+
+# Background jobs (optional at runtime — set USE_CELERY=1 to enable)
+celery>=5.4
+redis>=5.0
+
+# ML / embeddings.
+# The default embedding backend is sentence-transformers (all-MiniLM-L6-v2, 384-dim).
+# It pulls in torch (~large). For a lightweight install (tests / offline demo /
+# restricted networks) skip this line and set EMBEDDING_BACKEND=hash — every other
+# feature is identical, vectors are still 384-dim and stored/query in pgvector.
+sentence-transformers>=3.0

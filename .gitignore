@@ -1,0 +1,44 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+.python-version
+
+# --- Django ---
+*.log
+*.sqlite3
+db.sqlite3
+/media/
+/staticfiles/
+/static/CACHE/
+.local/
+.coverage
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# --- Environment / secrets ---
+.env
+.env.local
+.env.*.local
+
+# --- Node / frontend ---
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/*.local
+npm-debug.log*
+
+# --- Editors / OS ---
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# --- Sandbox helpers (local demo infra, not part of the project) ---
+/pgdata/
