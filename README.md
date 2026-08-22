@@ -1,9 +1,10 @@
 # AI Tool Discovery & Recommendation Platform
 
-Find the *right* AI tool for a specific need — not just browse a static list. This
-platform serves a searchable, faceted catalog of AI tools with semantic (embedding-based)
-search, side-by-side comparison, bookmarks, reviews and **personalised recommendations
-computed from user behaviour with pgvector**, all inside PostgreSQL.
+Find the *right* AI tool for a specific need — not just browse a static list. A
+searchable, faceted catalog of **real, link-verified AI tools** with semantic
+(embedding-based) search, side-by-side comparison, bookmarks, reviews,
+**personalised recommendations computed from behaviour with pgvector**, and a
+**Model Lab** that streams one prompt to four live LLMs side by side.
 
 ```
 React SPA (Vite)
@@ -15,6 +16,7 @@ Django REST Framework API
       ├── Tools: hybrid search · faceted filters · compare · view tracking
       ├── Bookmarks & Reviews (weighted interaction log)
       ├── Recommendation service (embedding cosine similarity + MMR re-rank)
+      ├── Model Lab: one prompt → 4 live LLMs, per-model SSE streams
       ▼
 PostgreSQL 16 + pgvector
       (relational tables + 384-dim vector columns, queried together via `<=>`)
@@ -228,3 +230,42 @@ Every knob is an environment variable (see `.env.example`): `SECRET_KEY`, `DEBUG
 `ALLOWED_HOSTS`, `DATABASE_URL`, CORS origins, JWT lifetimes, embedding backend &
 dispatch mode, search blend weight, MMR λ. Production mode refuses to boot with the
 insecure default key. No secrets in code.
+
+
+---
+
+## Upgrade features
+
+### Real catalog + verification crawler (`catalog/verification.py`)
+
+The seed (`real_tools_seed.json`) contains 127 real tools with real URLs and
+hand-written descriptions; it's a curated file meant to be hand-expanded. A
+Celery beat task verifies links: robots.txt-honouring HEAD→bounded-GET checks
+(≤64 KB read, `<title>`/`og:description` only), one check per tool per 24h
+with jitter, 10s timeout, and a 3-strike `needs_review` flag — never
+auto-delete. `is_live`/`http_status` surface in `/api/tools/` and the UI
+("link down" tags, per-tool status lines). Manual run:
+`python manage.py verify_tool_links`.
+
+### Model Lab — live multi-model comparison (`chat/`)
+
+`POST /api/chat/turns/` fans one prompt out to up to 4 models;
+`GET /api/chat/turns/{id}/stream/{model_id}/` is an independent SSE pipe per
+model (`data: {"token": …}` → `data: {"done": true, "usage": …}` or
+`data: {"error": …}`). Providers: OpenAI, Anthropic, Gemini, Groq
+(open-source Llama) — one async adapter each, normalised to plain tokens;
+registry-driven so new models are an env var, not a code change
+(`OPENAI_CHAT_MODEL` etc.).
+
+**Cost discipline (real APIs, real money):** server-side keys only, per-user
+`"chat"` throttle scope, 60s timeout + token cap per response, and *no fake
+fallback* — an unconfigured provider renders "NOT CONNECTED", never a canned
+answer. Responses persist with latency/token measurements for honest
+comparison. Set spend caps in each provider dashboard before demos.
+
+### Redesign
+
+Spec-sheet aesthetic: Space Grotesk display + IBM Plex Sans body + IBM Plex
+Mono for anything measured (tabular numerals), one signal-orange accent on
+near-black/off-white, hairline rules, squared corners, no gradients or glass.
+The live streaming cursor is the only hero motion.

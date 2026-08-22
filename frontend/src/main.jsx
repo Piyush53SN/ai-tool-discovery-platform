@@ -9,6 +9,7 @@ import BookmarksPage from './pages/BookmarksPage.jsx'
 import RecommendationsPage from './pages/RecommendationsPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
+import ChatPage from './pages/ChatPage.jsx'
 import Navbar from './components/Navbar.jsx'
 import { CompareProvider } from './components/CompareContext.jsx'
 import './styles.css'
@@ -17,6 +18,7 @@ const router = createBrowserRouter([
   { path: '/', element: <ExplorePage /> },
   { path: '/tools/:slug', element: <ToolDetailPage /> },
   { path: '/compare', element: <ComparePage /> },
+  { path: '/chat', element: <ChatPage /> },
   { path: '/bookmarks', element: <BookmarksPage /> },
   { path: '/recommendations', element: <RecommendationsPage /> },
   { path: '/login', element: <LoginPage /> },

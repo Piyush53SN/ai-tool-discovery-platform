@@ -48,6 +48,7 @@ export default function ToolCard({ tool, onChange }) {
       </Link>
       <p className="card-desc">{tool.description}</p>
       <div className="card-tags">
+        {!tool.is_live && <span className="tag dead-flag" title={tool.http_status ? `HTTP ${tool.http_status}` : "link check failed"}>link down</span>}
         {tool.tags?.slice(0, 4).map((t) => (
           <span key={t.slug} className="tag">#{t.name}</span>
         ))}

@@ -8,7 +8,7 @@ export default function Navbar() {
   return (
     <header className="navbar">
       <Link to="/" className="brand">
-        <span className="brand-orbit" aria-hidden />
+        <span className="brand-mark" aria-hidden>≡</span>
         <span>AI Tool <b>Discovery</b></span>
       </Link>
       <nav className="nav-links">
@@ -16,6 +16,7 @@ export default function Navbar() {
         <NavLink to="/recommendations">For You</NavLink>
         <NavLink to="/bookmarks">Bookmarks</NavLink>
         <NavLink to="/compare">Compare</NavLink>
+        <NavLink to="/chat">Model Lab</NavLink>
       </nav>
       <div className="nav-auth">
         {user ? (

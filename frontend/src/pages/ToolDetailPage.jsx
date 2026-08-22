@@ -87,6 +87,16 @@ export default function ToolDetailPage() {
         {tool.tags.map((t) => <span key={t.slug} className="tag">#{t.name}</span>)}
       </div>
 
+      <div className="link-status mono">
+        <span>URL</span>
+        <span className={tool.is_live ? "ok" : "down"}>{tool.is_live ? "LINK OK" : "LINK DOWN"}</span>
+        {tool.http_status && <span>HTTP {tool.http_status}</span>}
+        <span>
+          checked {tool.last_checked_at ? new Date(tool.last_checked_at).toLocaleString() : "never"}
+        </span>
+        <a href={tool.url} target="_blank" rel="noreferrer">{tool.url}</a>
+      </div>
+
       <section className="detail-section">
         <h2>Reviews</h2>
         {user ? (
