@@ -220,7 +220,7 @@ frontend/          React 19 + Vite SPA
 
 - ✅ Diversity re-rank (MMR) — `?diversify=` / `RECOMMENDATION_DIVERSIFY`
 - ✅ Onboarding quiz for cold start — register flow + `/api/auth/me/` PATCH
-- ✅ Trending — `recommendations.services.trending_tools` (bookmark velocity)
+- ✅ Trending — `GET /api/tools/trending/` + Explore strip (bookmark velocity, 7-day window)
 - 🔲 LLM-assisted tool submission from a URL
 - 🔲 Admin moderation dashboard for community submissions
 

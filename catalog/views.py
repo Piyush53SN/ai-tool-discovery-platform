@@ -75,6 +75,33 @@ class ToolViewSet(viewsets.ReadOnlyModelViewSet):
         return response
 
     # ---- extra actions --------------------------------------------------------
+    @action(detail=False, methods=["get"], permission_classes=[AllowAny])
+    def trending(self, request):
+        """GET /api/tools/trending/?limit=5 — bookmark velocity (stretch goal).
+
+        Ranks by bookmark interactions in the trailing week (see
+        recommendations.services.trending_tools) — the same weighted
+        interaction log that feeds the recommender, now read as a signal
+        of what the community is saving right now.
+        """
+        try:
+            limit = max(1, min(10, int(request.query_params.get("limit", 5))))
+        except (TypeError, ValueError):
+            limit = 5
+
+        from recommendations.services import trending_tools
+
+        tools = list(trending_tools(days=7, limit=limit))
+        user = getattr(request, "user", None)
+        bookmarked = (
+            bookmarked_tool_ids(user) if user and user.is_authenticated else set()
+        )
+        serializer = ToolListSerializer(
+            tools, many=True,
+            context={**self.get_serializer_context(), "bookmarked_ids": bookmarked},
+        )
+        return Response({"days": 7, "count": len(tools), "results": serializer.data})
+
     @action(
         detail=False,
         methods=["post"],

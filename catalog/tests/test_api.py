@@ -170,3 +170,31 @@ class TestViewTracking:
         response = api.post(f"{TOOLS_URL}{tool.slug}/view/")
         assert response.status_code == 200
         assert response.json()["recorded"] is False
+
+
+class TestTrendingEndpoint:
+    def test_ranks_by_recent_bookmark_velocity(self, api, category, make_tool, django_user_model):
+        """Two fresh bookmarks beat one; unbookmarked tools stay out."""
+        from interactions.services import set_bookmark
+
+        hot = make_tool("Hot Now", category)
+        warm = make_tool("Warm", category)
+        make_tool("Cold", category)
+
+        u1 = django_user_model.objects.create_user(username="tr1", password="x-pass-1234")
+        u2 = django_user_model.objects.create_user(username="tr2", password="x-pass-1234")
+        for user, tool in [(u1, hot), (u2, hot), (u1, warm)]:
+            set_bookmark(user, tool)
+
+        response = api.get("/api/tools/trending/")
+        assert response.status_code == 200
+        body = response.json()
+        names = [t["name"] for t in body["results"]]
+        assert names[:2] == ["Hot Now", "Warm"]
+        assert "Cold" not in names
+        assert body["days"] == 7
+
+    def test_limit_param_is_bounded(self, api, category, make_tool):
+        make_tool("Solo Trend", category)
+        body = api.get("/api/tools/trending/", {"limit": "99"}).json()
+        assert body["count"] <= 10

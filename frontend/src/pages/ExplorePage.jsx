@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { api, qs } from '../api.js'
 import ToolCard from '../components/ToolCard.jsx'
 import Pagination from '../components/Pagination.jsx'
@@ -17,6 +18,7 @@ const SORTS = [
 
 export default function ExplorePage() {
   const [categories, setCategories] = useState([])
+  const [trending, setTrending] = useState([])
   const [tags, setTags] = useState([])
   const [data, setData] = useState({ results: [], count: 0, pages: 1 })
   const [loading, setLoading] = useState(true)
@@ -40,6 +42,7 @@ export default function ExplorePage() {
   useEffect(() => {
     api('/categories/').then(setCategories).catch(() => {})
     api('/tags/').then(setTags).catch(() => {})
+    api('/tools/trending/?limit=5').then((d) => setTrending(d.results)).catch(() => {})
   }, [])
 
   const query = qs({
@@ -151,6 +154,15 @@ export default function ExplorePage() {
               Hybrid ranking for “<b>{data.search.query}</b>” — blending Postgres full-text
               relevance with embedding cosine similarity. <button className="link-btn" onClick={() => setSearchInput('')}>clear</button>
             </p>
+          )}
+
+          {trending.length > 0 && (
+            <div className="trending-strip">
+              <span className="trending-label mono">Trending · 7 days</span>
+              {trending.map((t) => (
+                <Link key={t.id} to={`/tools/${t.slug}`} className="trending-item">{t.name}</Link>
+              ))}
+            </div>
           )}
 
           <p className="result-count">
