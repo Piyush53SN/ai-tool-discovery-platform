@@ -79,7 +79,10 @@ fi
 
 # ---- 4. run both servers ------------------------------------------------------
 bold "• Starting Django (8000) + Vite (5173) — Ctrl-C stops everything"
-( cd frontend && [[ -d node_modules ]] || npm install --silent )
+# Always run npm install: it is a fast no-op when current, and SKIPPING it on
+# an old node_modules broke upgrades before (missing @fontsource deps made
+# Vite fail to resolve the stylesheet's font imports).
+( cd frontend && npm install --silent )
 
 # Pre-flight: a leftover server from a previous run (e.g. a terminal that was
 # closed instead of Ctrl-C'd) would silently steal the documented ports.
