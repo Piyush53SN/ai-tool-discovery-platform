@@ -11,6 +11,7 @@ export default function ToolCard({ tool, onChange }) {
   const { user } = useAuth()
   const { compareIds, toggleCompare } = useCompare()
   const [busy, setBusy] = useState(false)
+  const [bookmarked, setBookmarked] = useState(tool.is_bookmarked)
   const inCompare = compareIds.includes(tool.id)
 
   async function toggleBookmark(e) {
@@ -18,14 +19,15 @@ export default function ToolCard({ tool, onChange }) {
     if (!user || busy) return
     setBusy(true)
     try {
-      if (tool.is_bookmarked) {
+      if (bookmarked) {
         const list = await api('/bookmarks/')
         const mine = list.results?.find((b) => b.tool.id === tool.id)
         if (mine) await api(`/bookmarks/${mine.id}/`, { method: 'DELETE' })
       } else {
         await api('/bookmarks/', { method: 'POST', body: { tool_id: tool.id } })
       }
-      onChange?.()
+      setBookmarked(!bookmarked) // optimistic badge flip
+      onChange?.()               // parent may refetch counters
     } catch (err) {
       console.error(err)
     } finally {
@@ -64,12 +66,12 @@ export default function ToolCard({ tool, onChange }) {
           </button>
           {user && (
             <button
-              className={`icon-btn bookmark ${tool.is_bookmarked ? 'active' : ''}`}
-              title={tool.is_bookmarked ? 'Remove bookmark' : 'Bookmark'}
+              className={`icon-btn bookmark ${bookmarked ? 'active' : ''}`}
+              title={bookmarked ? 'Remove bookmark' : 'Bookmark'}
               onClick={toggleBookmark}
               disabled={busy}
             >
-              {tool.is_bookmarked ? '★' : '☆'}
+              {bookmarked ? '★' : '☆'}
             </button>
           )}
         </div>

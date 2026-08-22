@@ -9,6 +9,7 @@ export default function BookmarksPage() {
   const { user, loading: authLoading } = useAuth()
   const [data, setData] = useState({ results: [], count: 0, pages: 1 })
   const [page, setPage] = useState(1)
+  const [refresh, setRefresh] = useState(0)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -18,7 +19,7 @@ export default function BookmarksPage() {
       .then(setData)
       .catch(() => {})
       .finally(() => setLoading(false))
-  }, [user, page])
+  }, [user, page, refresh])
 
   if (authLoading) return null
   if (!user) {
@@ -44,7 +45,7 @@ export default function BookmarksPage() {
           <>
             <div className="grid">
               {data.results.map((b) => (
-                <ToolCard key={b.id} tool={{ ...b.tool, is_bookmarked: true }} onChange={() => setPage(page)} />
+                <ToolCard key={b.id} tool={{ ...b.tool, is_bookmarked: true }} onChange={() => setRefresh((r) => r + 1)} />
               ))}
             </div>
             <Pagination page={page} pages={data.pages} onPage={setPage} />

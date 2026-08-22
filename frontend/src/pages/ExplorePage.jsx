@@ -29,6 +29,7 @@ export default function ExplorePage() {
   const [minRating, setMinRating] = useState('')
   const [ordering, setOrdering] = useState('-avg_rating')
   const [page, setPage] = useState(1)
+  const [refresh, setRefresh] = useState(0)
 
   // Debounce the search box so hybrid search fires after typing pauses.
   useEffect(() => {
@@ -60,7 +61,7 @@ export default function ExplorePage() {
       .catch(() => {})
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [query])
+  }, [query, refresh])
 
   function toggle(value, list, setList) {
     setList(list.includes(value) ? list.filter((v) => v !== value) : [...list, value])
@@ -161,7 +162,7 @@ export default function ExplorePage() {
           ) : data.results.length ? (
             <div className="grid">
               {data.results.map((tool) => (
-                <ToolCard key={tool.id} tool={tool} onChange={() => setPage(page)} />
+                <ToolCard key={tool.id} tool={tool} onChange={() => setRefresh((r) => r + 1)} />
               ))}
             </div>
           ) : (
