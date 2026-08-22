@@ -1,14 +1,12 @@
 // GitHub Codespaces / VS Code devcontainer.
 // Open the repo -> green "Code" button -> "Codespaces" -> "Create codespace".
 // Port 5173 is auto-forwarded and previewed in your browser as "localhost".
+// PostgreSQL+pgvector runs EMBEDDED (pip pgserver) — no Docker needed.
 {
   "name": "ai-tool-discovery",
   "image": "mcr.microsoft.com/devcontainers/python:3.11",
   "features": {
-    "ghcr.io/devcontainers/features/node:1": { "version": "22" },
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {
-      "dockerDashComposeVersion": "v2"
-    }
+    "ghcr.io/devcontainers/features/node:1": { "version": "22" }
   },
   "forwardPorts": [5173, 8000],
   "portsAttributes": {
