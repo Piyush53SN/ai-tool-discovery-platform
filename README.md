@@ -43,6 +43,17 @@ Embedding jobs — sentence-transformers (all-MiniLM-L6-v2)
 
 ## Quickstart
 
+### 0. Zero-install option — GitHub Codespaces (browser preview, no local setup)
+
+Open the repo on GitHub → green **Code** button → **Codespaces** → **Create codespace on arena/…** (or `main` once merged). The devcontainer (`.devcontainer/`) installs Python, Node, and Docker-in-Docker, then the post-create script pre-installs dependencies. Once it's up, run in the terminal:
+
+```bash
+./scripts/run_local.sh        # DB + migrate + seed + both servers
+```
+
+Codespaces auto-forwards port **5173** and offers **"Open in Browser"** — that's your live
+localhost preview of the React app (login `demo / demo-pass-123`).
+
 ### 1. Database (PostgreSQL 15+ with pgvector)
 
 Any Postgres with the `vector` extension available works. Docker one-liner
