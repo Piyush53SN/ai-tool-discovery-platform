@@ -100,8 +100,8 @@ class Tool(models.Model):
     )
     last_checked_at = models.DateTimeField(null=True, blank=True)
     http_status = models.PositiveIntegerField(null=True, blank=True)
-    checked_title = models.CharField(
-        max_length=500, null=True, blank=True,  # noqa: DJ001
+    checked_title = models.CharField(  # noqa: DJ001 — NULL means "never fetched"
+        max_length=500, null=True, blank=True,
         help_text="<title> of the target page at last check (staleness signal).",
     )
     consecutive_failures = models.PositiveSmallIntegerField(default=0)
