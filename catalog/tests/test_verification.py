@@ -141,7 +141,7 @@ class TestVerifyTool:
                     sent += chunk_size
                     yield self._body[start:start + chunk_size]
                     if sent >= verification.MAX_PAGE_BYTES + chunk_size:
-                        assert False, "crawler read past the byte cap"
+                        raise AssertionError("crawler read past the byte cap")
 
         client._get = CountingResponse(200, headers={"content-type": "text/html"}, body=huge)
         verification.verify_tool(tool, client=client)  # must not raise / over-read
@@ -151,16 +151,16 @@ class TestDueTools:
     def test_24h_cooldown_filter(self, category):
         from datetime import timedelta
 
-        fresh = Tool.objects.create(
+        Tool.objects.create(
             name="Fresh", slug="fresh", description="d", url="https://x.dev/a",
             category=category, last_checked_at=timezone.now(),
         )
-        stale = Tool.objects.create(
+        Tool.objects.create(
             name="Stale", slug="stale", description="d", url="https://x.dev/b",
             category=category,
             last_checked_at=timezone.now() - timedelta(hours=25),
         )
-        never = Tool.objects.create(
+        Tool.objects.create(
             name="Never", slug="never", description="d", url="https://x.dev/c",
             category=category,
         )
