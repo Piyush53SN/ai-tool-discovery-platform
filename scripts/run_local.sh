@@ -80,7 +80,30 @@ fi
 # ---- 4. run both servers ------------------------------------------------------
 bold "• Starting Django (8000) + Vite (5173) — Ctrl-C stops everything"
 ( cd frontend && [[ -d node_modules ]] || npm install --silent )
-trap 'kill 0' EXIT INT TERM
+
+# Pre-flight: a leftover server from a previous run (e.g. a terminal that was
+# closed instead of Ctrl-C'd) would silently steal the documented ports.
+# strictPort now makes Vite fail loudly; catch it here with actionable detail.
+check_port_free() {
+  local port="$1"
+  local holder
+  holder="$(ss -tlnp 2>/dev/null | grep ":${port} " | grep -oE 'pid=[0-9]+' | head -1 | cut -d= -f2)"
+  if [[ -n "$holder" ]]; then
+    bold "✗ Port ${port} is already taken by PID ${holder}:"
+    ps -fp "${holder}" || true
+    echo "  This is a leftover server from an earlier run. Reclaim the port with:"
+    echo "      kill ${holder}     # or: pkill -f 'vite' ; pkill -f 'runserver'"
+    echo "  then re-run ./scripts/run_local.sh"
+    exit 1
+  fi
+}
+check_port_free 5173
+check_port_free 8000
+
+# HUP matters: closing the terminal window sends SIGHUP (not INT/TERM) —
+# without it the trap never fires and the background servers get orphaned,
+# which is exactly how a stale Vite ends up holding 5173.
+trap 'kill 0' EXIT INT TERM HUP
 ( cd frontend && npm run dev ) &
 python manage.py runserver 0.0.0.0:8000 &
 wait

@@ -8,6 +8,10 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
+    // Fail LOUDLY if 5173 is taken instead of silently drifting to 5174 —
+    // a silent drift desyncs the documented port, the Codespaces port
+    // forwarding and the preview label (leads to "blank page" reports).
+    strictPort: true,
     allowedHosts: true,
     proxy: {
       '/api': {
