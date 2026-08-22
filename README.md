@@ -45,10 +45,13 @@ Embedding jobs — sentence-transformers (all-MiniLM-L6-v2)
 
 ### 1. Database (PostgreSQL 15+ with pgvector)
 
-Any Postgres with the `vector` extension available works. Docker one-liner:
+Any Postgres with the `vector` extension available works. Docker one-liner
+(`POSTGRES_DB` matters — it pre-creates the `aitools` database the default
+`DATABASE_URL` expects):
 
 ```bash
-docker run -d --name pgvector -p 5432:5432 -e POSTGRES_PASSWORD=postgres \
+docker run -d --name pgvector -p 5432:5432 \
+  -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=aitools \
   pgvector/pgvector:pg16
 ```
 
@@ -65,6 +68,14 @@ cp .env.example .env                      # adjust DATABASE_URL
 python manage.py migrate
 python manage.py seed_tools               # ~160 tools + demo user, batch-embedded
 python manage.py runserver                # http://localhost:8000
+```
+
+**Lightweight install (no torch, no model download):**
+
+```bash
+grep -v '^sentence-transformers' requirements.txt > /tmp/reqs.txt
+pip install -r /tmp/reqs pytest pytest-django ruff
+# .env: EMBEDDING_BACKEND=hash   (everything works; swap back later for MiniLM)
 ```
 
 > **No network / no torch?** Set `EMBEDDING_BACKEND=hash` in `.env` — everything
