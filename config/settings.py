@@ -16,6 +16,34 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # ---------------------------------------------------------------------------
+# .env loading (dependency-free)
+#
+# The README and scripts/run_local.sh write a `.env` file next to manage.py
+# and expect it to be honoured. Without this loader Django only saw process
+# environment variables, so anything customised in .env silently fell back
+# to the defaults below (e.g. the embedded-DB unix-socket DATABASE_URL).
+# Semantics: os.environ.setdefault — a *real* exported variable always wins,
+# which keeps CI/containers explicit-env workflows authoritative.
+# ---------------------------------------------------------------------------
+def _load_env_file(path: Path) -> None:
+    if not path.exists():
+        return
+    for raw_line in path.read_text().splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key, value = key.strip(), value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+            value = value[1:-1]
+        if key:
+            os.environ.setdefault(key, value)
+
+
+_load_env_file(BASE_DIR / ".env")
+
+
+# ---------------------------------------------------------------------------
 # Small env helpers
 # ---------------------------------------------------------------------------
 def env_str(name: str, default: str = "") -> str:

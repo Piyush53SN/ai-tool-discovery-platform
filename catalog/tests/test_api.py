@@ -132,9 +132,27 @@ class TestCompareEndpoint:
         response = api.post("/api/tools/compare/", {"tool_ids": [a.pk]}, format="json")
         assert response.status_code == 400
 
+    def test_compare_rejects_duplicate_ids_collapsing_below_two(
+        self, api, category, make_tool
+    ):
+        a = make_tool("Twin Ids", category)
+        response = api.post("/api/tools/compare/", {"tool_ids": [a.pk, a.pk]}, format="json")
+        assert response.status_code == 400
+        assert "tool_ids" in response.json()
+
     def test_compare_rejects_unknown_tool(self, api):
         response = api.post("/api/tools/compare/", {"tool_ids": [901, 902]}, format="json")
         assert response.status_code == 400
+
+
+class TestRootIndex:
+    def test_root_returns_api_index(self, api):
+        """The API port's bare `/` is a self-describing index (not a 404)."""
+        response = api.get("/")
+        assert response.status_code == 200
+        body = response.json()
+        assert body["api"] == "/api/"
+        assert body["admin"] == "/admin/"
 
 
 class TestViewTracking:

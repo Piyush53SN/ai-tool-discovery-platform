@@ -101,6 +101,16 @@ class TestReviewAPI:
         (interaction,) = Interaction.objects.filter(user=user, tool=tool, type="review")
         assert interaction.weight == 4.0  # no enthusiasm bonus after the edit
 
+    def test_resubmit_returns_200_not_201(self, api_user, category, make_tool):
+        """A resubmit is an UPDATE of the (user, tool) review -> 200 OK."""
+        user, client = api_user
+        tool = make_tool("Status Code", category)
+        first = client.post(REVIEWS_URL, {"tool_id": tool.pk, "rating": 4}, format="json")
+        second = client.post(REVIEWS_URL, {"tool_id": tool.pk, "rating": 3}, format="json")
+        assert first.status_code == 201
+        assert second.status_code == 200
+        assert second.json()["rating"] == 3
+
     def test_delete_own_review_cleans_up(self, api_user, category, make_tool):
         user, client = api_user
         tool = make_tool("Gone", category)

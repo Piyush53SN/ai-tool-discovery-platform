@@ -17,10 +17,10 @@ Prints a DATABASE_URL using a unix socket, e.g.
 (config/settings.py understands the ?host= form).
 """
 import argparse
-import subprocess
-import shutil
-import sys
 import pathlib
+import shutil
+import subprocess
+import sys
 
 
 def run(cmd, **kw):

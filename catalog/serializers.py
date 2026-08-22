@@ -124,6 +124,12 @@ class CompareRequestSerializer(serializers.Serializer):
             if tid not in seen:
                 seen.add(tid)
                 ordered.append(tid)
+        # Duplicates can shrink the list below the 2-tool minimum
+        # (e.g. [5, 5] -> one tool); a 1-column comparison is meaningless.
+        if len(ordered) < 2:
+            raise serializers.ValidationError(
+                {"tool_ids": "Need at least 2 distinct tools to compare."}
+            )
         self.context["tools"] = [found[tid] for tid in ordered]
         return ordered
 

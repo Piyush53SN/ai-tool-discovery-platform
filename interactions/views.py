@@ -96,8 +96,12 @@ class ReviewViewSet(
         tool = input_serializer.validated_data["tool"]
         rating = input_serializer.validated_data["rating"]
         comment = input_serializer.validated_data["comment"]
-        review, _ = submit_review(request.user, tool, rating, comment)
-        return Response(ReviewSerializer(review).data, status=status.HTTP_201_CREATED)
+        # One review per (user, tool): a resubmit is an update -> 200, not 201.
+        review, created = submit_review(request.user, tool, rating, comment)
+        return Response(
+            ReviewSerializer(review).data,
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+        )
 
     def perform_destroy(self, instance):
         if instance.user_id != self.request.user.id:
