@@ -47,8 +47,11 @@ def _log_failure(fut) -> None:
 # ---------------------------------------------------------------------------
 # Core job (synchronous, idempotent)
 # ---------------------------------------------------------------------------
-def generate_tool_embedding(tool_id: int) -> bool:
+def generate_tool_embedding(tool_id: int, force: bool = False) -> bool:
     """(Re)compute one tool's embedding. Returns True when it was written.
+
+    Skips rows that are already fresh unless `force=True` — that dedupes the
+    two signals a normal creation fires (post_save + tags post_add).
 
     Uses `update_fields` deliberately:
       * it does NOT touch `updated_at`, keeping `embedding_is_stale` false and
@@ -60,6 +63,9 @@ def generate_tool_embedding(tool_id: int) -> bool:
     except Tool.DoesNotExist:
         logger.warning("Embedding job for missing tool id=%s skipped", tool_id)
         return False
+
+    if not force and not tool.embedding_is_stale:
+        return False  # a queued duplicate lost the race; nothing to do
 
     text = tool.embedding_input()  # name + description + tags
     vector = get_embedder().encode_one(text)
@@ -77,13 +83,16 @@ def generate_tool_embedding(tool_id: int) -> bool:
     return bool(updated)
 
 
-def batch_generate_embeddings(tool_ids: list[int]) -> tuple[int, int]:
+def batch_generate_embeddings(tool_ids: list[int], force: bool = True) -> tuple[int, int]:
     """Embed many tools efficiently (used by seed / backfill commands).
 
     Encodes in ONE batched call (huge speed-up for the transformer backend)
     and writes results with bulk UPDATEs. Returns (ok, skipped).
     """
-    tools = list(Tool.objects.filter(pk__in=tool_ids).prefetch_related("tags"))
+    tools = [
+        t for t in Tool.objects.filter(pk__in=tool_ids).prefetch_related("tags")
+        if force or t.embedding_is_stale
+    ]
     if not tools:
         return 0, 0
 
