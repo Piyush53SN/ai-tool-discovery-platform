@@ -277,6 +277,13 @@ CELERY_BEAT_SCHEDULE = {
         "task": "recommendations.tasks.recompute_all_preference_vectors",
         "schedule": 3600.0,  # hourly; tune to taste (e.g. crontab for 3am)
     },
+    # Link verification crawler: bounded batch every 6h -> each tool at most
+    # once per 24h (see catalog/verification.py CHECK_INTERVAL).
+    "verify-tool-links": {
+        "task": "catalog.verify_tool_links",
+        "schedule": 21600.0,
+        "kwargs": {"limit": 50},
+    },
 }
 
 # ---------------------------------------------------------------------------

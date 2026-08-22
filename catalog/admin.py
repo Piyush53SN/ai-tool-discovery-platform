@@ -37,18 +37,36 @@ class ToolAdmin(admin.ModelAdmin):
         "rating_count",
         "bookmark_count",
         "has_embedding",
+        "is_live",
+        "http_status",
+        "needs_review",
         "created_at",
     )
-    list_filter = ("pricing_tier", "category")
+    list_filter = ("pricing_tier", "category", "is_live", "needs_review")
     search_fields = ("name", "description")
     prepopulated_fields = {"slug": ("name",)}
     filter_horizontal = ("tags",)
-    readonly_fields = ("avg_rating", "rating_count", "bookmark_count", "embedding_updated_at")
-    actions = ("regenerate_embeddings",)
+    readonly_fields = (
+        "avg_rating", "rating_count", "bookmark_count", "embedding_updated_at",
+        "is_live", "last_checked_at", "http_status", "checked_title",
+        "consecutive_failures", "needs_review",
+    )
+    actions = ("regenerate_embeddings", "verify_now")
 
     @admin.display(boolean=True, description="Embedded")
     def has_embedding(self, obj: Tool) -> bool:
         return obj.embedding is not None
+
+    @admin.action(description="Verify selected tools' links now")
+    def verify_now(self, request, queryset):
+        import httpx
+
+        from .verification import verify_tool
+
+        with httpx.Client(follow_redirects=True) as client:
+            for tool in queryset:
+                verify_tool(tool, client=client)
+        self.message_user(request, f"Verified {queryset.count()} link(s).")
 
     @admin.action(description="Regenerate embeddings for selected tools")
     def regenerate_embeddings(self, request, queryset):

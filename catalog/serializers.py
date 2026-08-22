@@ -63,6 +63,11 @@ class ToolListSerializer(serializers.ModelSerializer):
             "bookmark_count",
             "is_bookmarked",
             "embedding_ready",
+            # link-verification state (Section 3.3): lets the frontend flag
+            # dead links instead of presenting them as healthy.
+            "is_live",
+            "http_status",
+            "last_checked_at",
             "created_at",
         )
 

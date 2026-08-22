@@ -19,3 +19,11 @@ def generate_tool_embedding_task(tool_id: int) -> None:
 @app.task(name="catalog.batch_generate_embeddings")
 def batch_generate_embeddings_task(tool_ids: list[int]) -> None:
     batch_generate_embeddings(tool_ids)
+
+
+@app.task(name="catalog.verify_tool_links")
+def verify_tool_links_task(limit: int = 50) -> dict:
+    """Periodic link verification (Section 3.2) — see catalog/verification.py."""
+    from .verification import verify_due_tools
+
+    return verify_due_tools(limit=limit)

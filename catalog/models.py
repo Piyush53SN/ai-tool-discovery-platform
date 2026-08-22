@@ -94,6 +94,23 @@ class Tool(models.Model):
     )
     embedding_updated_at = models.DateTimeField(null=True, blank=True)
 
+    # ---- link verification (catalog/verification.py, Section 3.2) -----------
+    is_live = models.BooleanField(
+        default=True, help_text="Last known state of the tool's public URL."
+    )
+    last_checked_at = models.DateTimeField(null=True, blank=True)
+    http_status = models.PositiveIntegerField(null=True, blank=True)
+    checked_title = models.CharField(
+        max_length=500, null=True, blank=True,
+        help_text="<title> of the target page at last check (staleness signal).",
+    )
+    consecutive_failures = models.PositiveSmallIntegerField(default=0)
+    needs_review = models.BooleanField(
+        default=False,
+        help_text="Set after 3+ consecutive failed checks — a human decides, "
+        "never auto-delete (crawl errors are often transient outages).",
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
