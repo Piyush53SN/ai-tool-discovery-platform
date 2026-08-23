@@ -30,6 +30,7 @@ from . import providers
 from .models import ChatSession, ChatTurn, ModelResponse
 from .serializers import (
     ChatModelsSerializer,
+    ProviderKeySerializer,
     TurnCreateSerializer,
     TurnDetailSerializer,
 )
@@ -45,7 +46,10 @@ class ChatModelsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        return Response(ChatModelsSerializer(providers.public_models(), many=True).data)
+        # `connected` is user-aware: global env key OR this user's BYOK key.
+        return Response(
+            ChatModelsSerializer(providers.public_models(request.user), many=True).data
+        )
 
 
 class TurnView(APIView):
@@ -134,7 +138,8 @@ class TurnStreamView(APIView):
             )
 
         spec = providers.get_spec(model_id)
-        connected = spec is not None and providers.is_reachable(spec)
+        connected = spec is not None and providers.is_reachable(spec, request.user)
+        api_key = providers.get_api_key(spec, request.user) if spec else None
         prompt = ChatTurn.objects.get(pk=turn_id).prompt
 
         def event_stream():
@@ -161,7 +166,7 @@ class TurnStreamView(APIView):
             def pump(worker: queue.Queue):
                 """Run the adapter's event loop in this thread, feeding the queue."""
                 async def main():
-                    async for token in providers.stream_chat(spec, prompt, history, usage):
+                    async for token in providers.stream_chat(spec, prompt, history, usage, api_key=api_key):
                         q.put(("token", token))
                     q.put(("done", None))
 
@@ -259,3 +264,53 @@ class TurnStreamView(APIView):
                 history.append({"role": "assistant", "content": reply.response_text})
         return history
 
+
+
+class ProviderKeyView(APIView):
+    """BYOK (Fix C): store/remove the signed-in user's own provider key.
+
+    POST   /api/chat/keys/   {provider, api_key}  -> {provider, connected}
+    DELETE /api/chat/keys/{provider}/             -> {provider, connected}
+
+    Keys are Fernet-encrypted at rest (chat/crypto.py) and never echoed.
+    """
+
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "writes"
+
+    def post(self, request):
+        serializer = ProviderKeySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        provider = serializer.validated_data["provider"]
+        api_key = serializer.validated_data["api_key"].strip()
+        if len(api_key) < 8:
+            return Response(
+                {"api_key": "That does not look like an API key."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        from .crypto import encrypt_secret
+        from .models import UserProviderKey
+
+        UserProviderKey.objects.update_or_create(
+            user=request.user,
+            provider=provider,
+            defaults={"key_ciphertext": encrypt_secret(api_key)},
+        )
+        spec = next(s for s in providers.REGISTRY if s["provider"] == provider)
+        return Response({"provider": provider, "connected": providers.is_connected_for(spec, request.user)})
+
+    def delete(self, request, provider: str):
+        from .models import UserProviderKey
+
+        deleted, _ = UserProviderKey.objects.filter(
+            user=request.user, provider=provider
+        ).delete()
+        spec = next((s for s in providers.REGISTRY if s["provider"] == provider), None)
+        connected = (
+            providers.is_connected_for(spec, request.user) if spec else False
+        )
+        return Response(
+            {"provider": provider, "deleted": bool(deleted), "connected": connected}
+        )

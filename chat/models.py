@@ -62,3 +62,27 @@ class ModelResponse(models.Model):
 
     def __str__(self) -> str:
         return f"{self.model_id} @ {self.turn_id.hex[:8]}: {self.status}"
+
+
+class UserProviderKey(models.Model):
+    """Bring-your-own-key (Fix C): a provider API key pasted by a user.
+
+    Stored Fernet-encrypted (chat/crypto.py); never echoed back by any API.
+    Connected = global env var (operator-funded) OR one of these rows.
+    """
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="provider_keys"
+    )
+    provider = models.CharField(max_length=50)
+    key_ciphertext = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=("user", "provider"), name="unique_user_provider_key")
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.user.username} -> {self.provider} (encrypted)"

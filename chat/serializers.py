@@ -57,3 +57,21 @@ class TurnDetailSerializer(serializers.Serializer):
 
     def get_conversation_id(self, obj: ChatTurn) -> str:
         return str(obj.session_id)
+
+
+class ProviderKeySerializer(serializers.Serializer):
+    """POST /api/chat/keys/ body {provider, api_key} — BYOK (Fix C).
+
+    The response carries booleans only; a stored key is never echoed back.
+    """
+
+    provider = serializers.CharField(max_length=50)
+    api_key = serializers.CharField(max_length=4096, write_only=True)
+
+    def validate_provider(self, value: str) -> str:
+        known = {spec["provider"] for spec in providers.REGISTRY}
+        if value not in known:
+            raise serializers.ValidationError(
+                f"Unknown provider: {value}. Known: {sorted(known)}"
+            )
+        return value

@@ -20,3 +20,4 @@ redis>=5.0
 # feature is identical, vectors are still 384-dim and stored/query in pgvector.
 sentence-transformers>=3.0
 httpx>=0.27
+cryptography>=42

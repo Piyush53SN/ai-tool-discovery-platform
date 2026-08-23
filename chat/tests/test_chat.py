@@ -11,6 +11,7 @@ import json
 from unittest.mock import patch
 
 import pytest
+from rest_framework.test import APIClient
 
 from chat import providers
 from chat.models import ChatSession, ChatTurn, ModelResponse
@@ -21,7 +22,7 @@ MODELS_URL = "/api/chat/models/"
 TURNS_URL = "/api/chat/turns/"
 
 
-async def _fake_stream(spec, prompt, history, usage):
+async def _fake_stream(spec, prompt, history, usage, api_key=None):
     """Deterministic stand-in: yields tokens, reports usage like a provider."""
     for token in ["Hel", "lo ", "from ", spec["id"]]:
         yield token
@@ -153,7 +154,7 @@ class TestStreamEndpoint:
         assert row.response_text == ""  # NO canned content, ever
 
     def test_provider_failure_surfaces_as_error_event(self, api_user):
-        async def exploding(spec, prompt, history, usage):
+        async def exploding(spec, prompt, history, usage, api_key=None):
             raise RuntimeError("HTTP 429: quota exceeded")
             yield  # pragma: no cover
 
@@ -193,7 +194,7 @@ class TestStreamEndpoint:
         )
         seen_history = {}
 
-        async def spy_stream(spec, prompt, history, usage):
+        async def spy_stream(spec, prompt, history, usage, api_key=None):
             seen_history.update(history=history, prompt=prompt)
             yield "ok"
 
@@ -231,3 +232,97 @@ class TestTurnDetail:
             session=ChatSession.objects.create(user=other), prompt="secret"
         )
         assert client.get(f"{TURNS_URL}{foreign_turn.id}/").status_code == 404
+
+
+class TestBYOK:
+    """Fix C: bring-your-own-key — encrypted at rest, never echoed, user-aware."""
+
+    KEYS_URL = "/api/chat/keys/"
+
+    def test_post_stores_encrypted_and_flips_connected(self, api_user):
+        user, client = api_user
+        response = client.post(
+            self.KEYS_URL, {"provider": "groq", "api_key": "gsk_my_secret_key_123"},
+            format="json",
+        )
+        assert response.status_code == 200
+        body = response.json()
+        assert body == {"provider": "groq", "connected": True}  # no key echo
+
+        from chat.models import UserProviderKey
+        row = UserProviderKey.objects.get(user=user, provider="groq")
+        assert "gsk_my_secret_key_123" not in row.key_ciphertext  # not plaintext
+        assert row.key_ciphertext.startswith("gAAAA")             # Fernet envelope
+
+        spec = providers.get_spec("llama-3.3-70b")
+        assert not providers.is_connected(spec)                    # global: no
+        assert providers.is_connected_for(spec, user)              # BYOK: yes
+
+    def test_models_endpoint_is_user_aware(self, api_user, api):
+        user, client = api_user
+        before = {m["id"]: m["connected"] for m in client.get(MODELS_URL).json()}
+        assert before["llama-3.1-8b-instant"] is False
+        client.post(self.KEYS_URL, {"provider": "groq", "api_key": "gsk_user_key"}, format="json")
+        after = {m["id"]: m["connected"] for m in client.get(MODELS_URL).json()}
+        assert after["llama-3.3-70b"] is True
+        assert after["llama-3.1-8b-instant"] is True               # same provider key
+        assert after["gemma2-9b-it"] is True
+        assert after["gpt-4o-mini"] is False                       # other providers unaffected
+
+        # other users see no change (a second, key-less authenticated user)
+        from django.contrib.auth import get_user_model
+        stranger = get_user_model().objects.create_user(username="stranger", password="x-pass-1234")
+        stranger_client = APIClient()
+        stranger_client.force_authenticate(user=stranger)
+        other = {m["id"]: m["connected"] for m in stranger_client.get(MODELS_URL).json()}
+        assert other["llama-3.3-70b"] is False
+
+    def test_stream_uses_the_user_key_not_global_env(self, api_user):
+        user, client = api_user
+        client.post(self.KEYS_URL, {"provider": "groq", "api_key": "gsk_stream_key"}, format="json")
+
+        captured = {}
+
+        async def spy(spec, prompt, history, usage, api_key=None):
+            captured["api_key"] = api_key
+            yield "ok"
+
+        providers._testing_stream = spy
+        try:
+            session = ChatSession.objects.create(user=user)
+            turn = ChatTurn.objects.create(session=session, prompt="hi")
+            ModelResponse.objects.create(
+                turn=turn, model_id="llama-3.3-70b", provider="groq",
+                model_name="llama-3.3-70b-versatile",
+            )
+            response = client.get(f"{TURNS_URL}{turn.id}/stream/llama-3.3-70b/")
+            assert response.status_code == 200
+            chunks = [c.decode() for c in response.streaming_content]
+            assert any('"token": "ok"' in c for c in chunks)
+            assert captured["api_key"] == "gsk_stream_key"          # BYOK flows to the adapter
+        finally:
+            providers._testing_stream = None
+
+    def test_delete_removes_key(self, api_user):
+        user, client = api_user
+        client.post(self.KEYS_URL, {"provider": "gemini", "api_key": "AIza_user_key"}, format="json")
+        gone = client.delete(f"{self.KEYS_URL}gemini/")
+        assert gone.status_code == 200
+        assert gone.json() == {"provider": "gemini", "deleted": True, "connected": False}
+        spec = providers.get_spec("gemini-2.0-flash")
+        assert not providers.is_connected_for(spec, user)
+
+    def test_unknown_provider_rejected(self, api_user):
+        _, client = api_user
+        response = client.post(
+            self.KEYS_URL, {"provider": "skynet", "api_key": "x" * 20}, format="json"
+        )
+        assert response.status_code == 400
+
+    def test_requires_auth(self, api):
+        assert api.post(self.KEYS_URL, {"provider": "groq", "api_key": "k" * 20}, format="json").status_code == 401
+
+    def test_roundtrip_decrypt(self, api_user):
+        from chat.crypto import decrypt_secret, encrypt_secret
+        ciphertext = encrypt_secret("gsk_roundtrip")
+        assert decrypt_secret(ciphertext) == "gsk_roundtrip"

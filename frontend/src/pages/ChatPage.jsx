@@ -21,11 +21,32 @@ export default function ChatPage() {
   const [runs, setRuns] = useState([]) // {key, cols: [{modelId, label, provider, state, text, meta}]}
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [byokFor, setByokFor] = useState(null)   // provider awaiting a pasted key
+  const [byokKey, setByokKey] = useState('')
+  const [byokBusy, setByokBusy] = useState(false)
   const scroller = useRef(null)
 
+  const refreshModels = () => api('/chat/models/').then(setModels).catch(() => {})
   useEffect(() => {
-    if (user) api('/chat/models/').then(setModels).catch(() => {})
-  }, [user])
+    if (user) refreshModels()
+  }, [user]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function submitKey() {
+    if (!byokFor || !byokKey.trim() || byokBusy) return
+    setByokBusy(true); setError('')
+    try {
+      await api('/chat/keys/', {
+        method: 'POST',
+        body: { provider: byokFor, api_key: byokKey.trim() },
+      })
+      setByokFor(null); setByokKey('')
+      await refreshModels() // chip flips to connected, same as a global key
+    } catch (err) {
+      setError(err.payload?.api_key || JSON.stringify(err.payload) || 'Could not save key')
+    } finally {
+      setByokBusy(false)
+    }
+  }
 
   const connected = models.filter((m) => m.connected)
   const toggle = (id) =>
@@ -150,8 +171,8 @@ export default function ChatPage() {
           <button
             key={m.id}
             className={`model-chip ${selected.includes(m.id) ? 'on' : ''} ${m.connected ? '' : 'off'}`}
-            onClick={() => toggle(m.id)}
-            disabled={!m.connected}
+            onClick={() => (m.connected ? toggle(m.id) : setByokFor(m.provider))}
+            disabled={false}
             title={m.connected ? m.model_name : 'Not connected — set the provider API key server-side'}
           >
             <span className="dot" data-state={m.connected ? 'on' : 'off'} />
@@ -162,6 +183,33 @@ export default function ChatPage() {
         ))}
         {!models.length && <span className="muted mono">loading registry…</span>}
       </div>
+
+      {byokFor && (
+        <div className="byok-form">
+          <span className="mono byok-label">BRING YOUR OWN KEY — {byokFor.toUpperCase()}</span>
+          <p className="muted">
+            Paste your own {byokFor} API key to enable {models.filter((m) => m.provider === byokFor).length || ''} model
+            {models.filter((m) => m.provider === byokFor).length === 1 ? '' : 's'} for your account.
+            It is stored encrypted server-side and never displayed again.
+          </p>
+          <div className="byok-row">
+            <input
+              type="password"
+              value={byokKey}
+              onChange={(e) => setByokKey(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && submitKey()}
+              placeholder={`${byokFor} API key`}
+              autoFocus
+            />
+            <button className="btn btn-primary" onClick={submitKey} disabled={byokBusy || !byokKey.trim()}>
+              {byokBusy ? 'SAVING…' : 'SAVE KEY'}
+            </button>
+            <button className="btn btn-ghost" onClick={() => { setByokFor(null); setByokKey('') }}>
+              CANCEL
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="lab-console" ref={scroller}>
         {!runs.length && (

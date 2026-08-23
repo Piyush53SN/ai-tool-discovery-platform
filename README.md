@@ -83,6 +83,11 @@ python manage.py seed_tools               # ~160 tools + demo user, batch-embedd
 python manage.py runserver                # http://localhost:8000
 ```
 
+`./scripts/run_local.sh` ends with a **readiness-gated banner** — it polls
+both servers (up to 45s each) and only prints READY with the URLs and demo
+login once Django **and** Vite actually answer HTTP; a failed boot tails the
+offending server's log and exits non-zero instead of hanging silently.
+
 **Lightweight install (no torch, no model download):**
 
 ```bash
@@ -252,10 +257,14 @@ auto-delete. `is_live`/`http_status` surface in `/api/tools/` and the UI
 `POST /api/chat/turns/` fans one prompt out to up to 4 models;
 `GET /api/chat/turns/{id}/stream/{model_id}/` is an independent SSE pipe per
 model (`data: {"token": …}` → `data: {"done": true, "usage": …}` or
-`data: {"error": …}`). Providers: OpenAI, Anthropic, Gemini, Groq
-(open-source Llama) — one async adapter each, normalised to plain tokens;
-registry-driven so new models are an env var, not a code change
-(`OPENAI_CHAT_MODEL` etc.).
+`data: {"error": …}`). Providers: OpenAI, Anthropic, Gemini, Groq — one async adapter each,
+normalised to plain tokens; registry-driven so new models are an env var, not
+a code change (`OPENAI_CHAT_MODEL` etc.). Seven registry models ship, and the
+free-to-obtain keys (Groq, Google) alone populate five of them — no paid keys
+required for a full Model Lab. **Bring-your-own-key:** clicking an unconnected
+chip opens an inline form; pasted keys are Fernet-encrypted at rest, never
+echoed, and connect that provider for that user only (`POST /api/chat/keys/`,
+`DELETE /api/chat/keys/{provider}/`).
 
 **Cost discipline (real APIs, real money):** server-side keys only, per-user
 `"chat"` throttle scope, 60s timeout + token cap per response, and *no fake
