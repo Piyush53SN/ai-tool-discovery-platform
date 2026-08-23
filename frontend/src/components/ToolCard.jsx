@@ -7,7 +7,7 @@ import { useCompare } from './CompareContext.jsx'
 
 const PRICING_CLASS = { free: 'pill-free', freemium: 'pill-freemium', paid: 'pill-paid' }
 
-export default function ToolCard({ tool, onChange }) {
+export default function ToolCard({ tool, onChange, className = '', style }) {
   const { user } = useAuth()
   const { compareIds, toggleCompare } = useCompare()
   const [busy, setBusy] = useState(false)
@@ -36,7 +36,7 @@ export default function ToolCard({ tool, onChange }) {
   }
 
   return (
-    <article className="tool-card">
+    <article className={`tool-card ${className}`.trim()} style={style}>
       <div className="card-top">
         <Link to={`/tools/${tool.slug}`} className="card-title">{tool.name}</Link>
         <span className={`pill ${PRICING_CLASS[tool.pricing_tier] || ''}`}>

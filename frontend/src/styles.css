@@ -61,8 +61,45 @@ h2 { font-size: 19px; }
 p { margin: 0 0 10px; }
 code { font-family: var(--font-mono); font-size: 0.85em; background: var(--raise-2); padding: 1px 6px; border: 1px solid var(--rule); }
 
+:root { color-scheme: dark; }
+
+/* Light theme (Fix 4): same tokens, roles swapped; accent deepened for
+   contrast on a light ground. Applied via <html data-theme="light">. */
+[data-theme="light"] {
+  color-scheme: light;
+  --ink: #f4f2ec;
+  --paper: #17181a;
+  --paper-dim: #5d6066;
+  --rule: #dcd9d0;
+  --rule-strong: #bdb9af;
+  --raise: #eceae2;
+  --raise-2: #e3e1d8;
+  /* Deepened from #e0430f: 4.5:1 as text on the light ground (small text
+     like .link-btn needs AA normal), 5:1 for white button text on it. */
+  --accent: #cc3a0a;
+  --accent-ink: #ffffff;
+  --live: #1d7a4f;
+  --warn: #9a6a14;
+  --err: #bb341c;
+}
+
+/* Theme-switch cross-fade: applied ONLY while the switch is in flight
+   (Navbar adds .theme-anim to <html> for ~320ms) so ordinary hover
+   transitions keep their own snappy timing. */
+html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after {
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease,
+    fill 0.25s ease, stroke 0.25s ease, box-shadow 0.25s ease !important;
+}
+
 .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 .muted { color: var(--paper-dim); font-size: 13.5px; }
+
+/* Measured responsiveness (Fix 1): colour/background changes on interactive
+   elements ease over the same ~0.13s as .btn — no snapping, no bounce. */
+.tool-card, .card-title, .card-category, .trending-item, .rec-row, .rec-name,
+.facet-list label, .chip, .nav-links a, .detail-breadcrumb a {
+  transition: background-color 0.13s ease, color 0.13s ease, border-color 0.13s ease;
+}
 .display { text-transform: none; }
 
 /* ---------- shared measured-data atoms ---------- */
@@ -99,6 +136,7 @@ code { font-family: var(--font-mono); font-size: 0.85em; background: var(--raise
 }
 .btn:hover { border-color: var(--paper); }
 .btn:active { transform: translateY(1px); }
+.btn-primary:active, .chip-on:active { transform: scale(0.97); } /* quick press, not springy */
 .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
 .btn-primary:hover { background: #ff6a3d; border-color: #ff6a3d; color: var(--accent-ink); }
 .btn-primary:disabled { background: var(--raise-2); border-color: var(--rule); color: var(--paper-dim); cursor: not-allowed; }
@@ -167,9 +205,28 @@ code { font-family: var(--font-mono); font-size: 0.85em; background: var(--raise
   color: var(--paper-dim); border: none; border-bottom: 2px solid transparent;
 }
 .nav-links a:hover { color: var(--paper); background: var(--raise); }
-.nav-links a.active { color: var(--paper); border-bottom-color: var(--accent); background: var(--raise); }
+.nav-links a.active { color: var(--paper); background: var(--raise); }
+/* Sliding indicator: one absolutely-positioned accent bar moved (via
+   transform/width, measured in Navbar.jsx) between tabs on navigation. */
+.nav-indicator {
+  position: absolute; bottom: 0; height: 2px; background: var(--accent);
+  transition: transform 0.18s ease, width 0.18s ease, opacity 0.18s ease;
+}
 .nav-auth { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
 .nav-auth .btn { padding: 6px 12px; font-size: 13px; }
+.theme-toggle {
+  position: relative; width: 34px; height: 34px; padding: 0;
+  border: 1px solid var(--rule-strong); background: transparent; color: var(--paper);
+  border-radius: var(--radius); cursor: pointer;
+}
+.theme-toggle svg {
+  position: absolute; inset: 7px; width: 18px; height: 18px;
+  transition: opacity 0.2s ease, transform 0.25s ease;
+}
+.theme-toggle .icon-moon { opacity: 0; transform: rotate(-45deg) scale(0.7); }
+[data-theme="light"] .theme-toggle .icon-moon { opacity: 1; transform: none; }
+[data-theme="light"] .theme-toggle .icon-sun { opacity: 0; transform: rotate(45deg) scale(0.7); }
+
 .user-chip { font-family: var(--font-mono); font-size: 12px; color: var(--paper-dim); border: 1px solid var(--rule); padding: 4px 9px; border-radius: var(--radius); }
 
 /* ---------- explore: ruled sidebar + results ---------- */
@@ -225,7 +282,15 @@ code { font-family: var(--font-mono); font-size: 0.85em; background: var(--raise
   display: flex; flex-direction: column; gap: 9px; padding: 16px;
   background: var(--raise); border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
 }
-.tool-card:hover { background: var(--raise-2); }
+.tool-card { outline: 1px solid transparent; }
+.tool-card:hover {
+  background: var(--raise-2);
+  transform: translateY(-2px);
+  outline-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+.tool-card { transition: background-color 0.13s ease, color 0.13s ease, border-color 0.13s ease,
+  transform 0.13s ease, box-shadow 0.13s ease, outline-color 0.13s ease; }
 .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
 .card-title { font-family: var(--font-display); font-size: 16.5px; font-weight: 700; color: var(--paper); border-bottom: none; }
 .card-title:hover { color: var(--accent); }
@@ -239,6 +304,12 @@ code { font-family: var(--font-mono); font-size: 0.85em; background: var(--raise
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
 }
 .card-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+.tool-card.card-enter { animation: card-in 0.28s ease backwards; }
+
 .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 8px; border-top: 1px solid var(--rule); }
 .card-actions { display: flex; gap: 6px; }
 
@@ -401,6 +472,8 @@ code { font-family: var(--font-mono); font-size: 0.85em; background: var(--raise
 .rec-scores { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; text-align: right; }
 .score-val { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: 20px; font-weight: 600; color: var(--accent); }
 .score-label { font-family: var(--font-mono); font-size: 9.5px; color: var(--paper-dim); text-transform: uppercase; letter-spacing: 0.12em; }
+.score-bar { margin-top: 4px; width: 120px; max-width: 100%; height: 2px; background: var(--rule); }
+.score-bar span { display: block; height: 100%; background: var(--accent); }
 .rec-reason { font-size: 11.5px; color: var(--paper-dim); max-width: 170px; }
 .onboarding { background: var(--raise); border: 1px solid var(--rule); padding: 18px; margin-bottom: 20px; }
 .onboarding h3 { margin-bottom: 10px; }

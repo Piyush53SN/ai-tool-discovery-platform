@@ -172,9 +172,17 @@ export default function ExplorePage() {
           {loading ? (
             <div className="grid">{Array.from({ length: 6 }).map((_, i) => <div key={i} className="tool-card skeleton" />)}</div>
           ) : data.results.length ? (
-            <div className="grid">
-              {data.results.map((tool) => (
-                <ToolCard key={tool.id} tool={tool} onChange={() => setRefresh((r) => r + 1)} />
+            /* key={query + page + refresh}: filter/sort changes remount the grid
+               so the staggered entrance replays — motion marks "new results". */
+            <div className="grid" key={`${query}|${page}|${refresh}`}>
+              {data.results.map((tool, i) => (
+                <ToolCard
+                  key={tool.id}
+                  tool={tool}
+                  className="card-enter"
+                  style={{ animationDelay: `${Math.min(i * 30, 240)}ms` }}
+                  onChange={() => setRefresh((r) => r + 1)}
+                />
               ))}
             </div>
           ) : (

@@ -1,7 +1,37 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api, qs } from '../api.js'
 import { useAuth } from '../AuthContext.jsx'
+
+/** Ease a number from 0 to target over ~700ms (requestAnimationFrame) —
+ *  the match figure counts up on mount; the fill bar shares the same eased
+ *  value so number and bar move together. */
+function useCountUp(target, duration = 700) {
+  const [value, setValue] = useState(0)
+  const raf = useRef(0)
+  useEffect(() => {
+    const start = performance.now()
+    const tick = (now) => {
+      const p = Math.min(1, (now - start) / duration)
+      setValue(target * (1 - Math.pow(1 - p, 3)))
+      if (p < 1) raf.current = requestAnimationFrame(tick)
+    }
+    raf.current = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf.current)
+  }, [target, duration])
+  return value
+}
+
+function ScoreBlock({ similarity }) {
+  const value = useCountUp(similarity * 100)
+  return (
+    <div className="score">
+      <span className="score-val">{value.toFixed(0)}%</span>
+      <span className="score-label">match</span>
+      <div className="score-bar"><span style={{ width: `${value}%` }} /></div>
+    </div>
+  )
+}
 
 const STRATEGY_INFO = {
   personalised: {
@@ -139,10 +169,7 @@ export default function RecommendationsPage() {
                 </div>
                 <div className="rec-scores">
                   {r.similarity > 0 && (
-                    <div className="score">
-                      <span className="score-val">{(r.similarity * 100).toFixed(0)}%</span>
-                      <span className="score-label">match</span>
-                    </div>
+                    <ScoreBlock key={`${r.tool.id}-${limit}-${diversify}`} similarity={r.similarity} />
                   )}
                   <span className="rec-reason">{r.reason}</span>
                 </div>
