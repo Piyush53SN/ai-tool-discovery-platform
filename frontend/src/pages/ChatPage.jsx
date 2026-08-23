@@ -155,7 +155,7 @@ export default function ChatPage() {
   }
 
   useEffect(() => {
-    scroller.current?.scrollTo({ top: scroller.current.scrollHeight })
+    scroller.current?.scrollTo?.({ top: scroller.current.scrollHeight })
   }, [runs])
 
   if (authLoading) return null

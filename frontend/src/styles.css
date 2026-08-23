@@ -369,7 +369,11 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 .compare-table .attr-label { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--paper-dim); white-space: nowrap; }
 
 /* ---------- model lab: the instrument ---------- */
-.lab { display: flex; flex-direction: column; height: calc(100vh - 210px); min-height: 480px; border: 1px solid var(--rule); background: var(--raise); }
+/* min-height (was: height) — a hard cap made stacked chrome (own-keys panel,
+   byok-form) overflow past the box, pushing .lab-input + RUN under the footer
+   which then intercepted the click. A floor lets the panel grow to fit.
+   max() keeps the original 480px guarantee in one declaration. */
+.lab { display: flex; flex-direction: column; min-height: max(calc(100vh - 210px), 480px); border: 1px solid var(--rule); background: var(--raise); }
 .lab-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 16px 18px; border-bottom: 1px solid var(--rule); }
 .lab-head h1 { margin: 0; }
 .lab-status { font-size: 11px; letter-spacing: 0.1em; color: var(--paper-dim); border: 1px solid var(--rule); padding: 5px 10px; }
