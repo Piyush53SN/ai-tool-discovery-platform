@@ -78,7 +78,7 @@ else
 fi
 
 # ---- 4. run both servers ------------------------------------------------------
-bold "• Starting Django (8000) + Vite (5173) — Ctrl-C stops everything"
+bold "• Preparing frontend deps (npm install — first run can be slow)"
 # Always run npm install: it is a fast no-op when current, and SKIPPING it on
 # an old node_modules broke upgrades before (missing @fontsource deps made
 # Vite fail to resolve the stylesheet's font imports).
@@ -90,7 +90,9 @@ bold "• Starting Django (8000) + Vite (5173) — Ctrl-C stops everything"
 check_port_free() {
   local port="$1"
   local holder
-  holder="$(ss -tlnp 2>/dev/null | grep ":${port} " | grep -oE 'pid=[0-9]+' | head -1 | cut -d= -f2)"
+  # `|| true`: with pipefail, an EMPTY result (port free) makes grep exit 1
+  # and would otherwise kill the script — the happy path must survive.
+  holder="$(ss -tlnp 2>/dev/null | grep ":${port} " | grep -oE 'pid=[0-9]+' | head -1 | cut -d= -f2 || true)"
   if [[ -n "$holder" ]]; then
     bold "✗ Port ${port} is already taken by PID ${holder}:"
     ps -fp "${holder}" || true
@@ -103,10 +105,51 @@ check_port_free() {
 check_port_free 5173
 check_port_free 8000
 
+bold "• Launching Django (8000) + Vite (5173) — waiting for BOTH to answer…"
+
+# Log files: output still streams to the terminal via tee, and a failed boot
+# can be tailed below instead of leaving a silent hang.
+RUN_LOG_DIR=".run"
+mkdir -p "$RUN_LOG_DIR"
+
 # HUP matters: closing the terminal window sends SIGHUP (not INT/TERM) —
 # without it the trap never fires and the background servers get orphaned,
 # which is exactly how a stale Vite ends up holding 5173.
 trap 'kill 0' EXIT INT TERM HUP
-( cd frontend && npm run dev ) &
-python manage.py runserver 0.0.0.0:8000 &
+( cd frontend && npm run dev ) 2>&1 | tee "$RUN_LOG_DIR/vite.log" &
+python manage.py runserver 0.0.0.0:8000 2>&1 | tee "$RUN_LOG_DIR/django.log" &
+
+# ---- readiness gate: prove BOTH servers respond before declaring victory ----
+# `curl ... 2>/dev/null` failures inside `if` are non-fatal under `set -e`;
+# each poll is guarded so a refused connection just means "try again in 1s".
+wait_for() {
+  local url="$1" name="$2" log="$3" timeout_s="${4:-45}" waited=0
+  while true; do
+    if curl -fsS --max-time 2 -o /dev/null "$url" 2>/dev/null; then
+      return 0
+    fi
+    waited=$((waited + 1))
+    if (( waited >= timeout_s )); then
+      bold "✗ ${name} did not answer at ${url} within ${timeout_s}s — last log lines:"
+      tail -n 20 "$log" || true
+      return 1
+    fi
+    sleep 1
+  done
+}
+
+if wait_for "http://localhost:8000/" "Django API" "$RUN_LOG_DIR/django.log" 45    && wait_for "http://localhost:5173/" "Vite frontend" "$RUN_LOG_DIR/vite.log" 45; then
+  echo
+  bold "────────────────────────────────────────────────────────────"
+  bold "  READY — both servers verified responding"
+  bold "  App:      http://localhost:5173"
+  bold "  API:      http://localhost:8000/api/"
+  bold "  Login:    demo / demo-pass-123"
+  bold "  Stop:     Ctrl-C (stops both)"
+  bold "────────────────────────────────────────────────────────────"
+else
+  bold "✗ Startup failed — see the log tail above. Nothing is marked ready."
+  exit 1
+fi
+
 wait
