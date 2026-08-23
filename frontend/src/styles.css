@@ -318,6 +318,12 @@ code { font-family: var(--font-mono); font-size: 0.85em; background: var(--raise
 .chip-flag { font-size: 9.5px; letter-spacing: 0.06em; color: var(--err); opacity: 0.9; }
 .model-chip:not(.on):not(:disabled) .chip-flag { color: var(--err); }
 
+.own-keys { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; border: 1px solid var(--rule); background: var(--ink); padding: 9px 16px; margin: 0 18px 12px; }
+.own-keys-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--live); }
+.own-key-row { display: inline-flex; align-items: center; gap: 10px; }
+.own-key-provider { font-family: var(--font-display); font-weight: 500; font-size: 13.5px; }
+.btn-small { padding: 4px 10px; font-size: 11px; }
+
 .byok-form { border: 1px solid var(--rule); border-left: 2px solid var(--accent); background: var(--ink); padding: 12px 16px; margin: 0 18px 12px; }
 .byok-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); }
 .byok-form p { margin: 6px 0 10px; }

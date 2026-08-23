@@ -239,6 +239,15 @@ class TestBYOK:
 
     KEYS_URL = "/api/chat/keys/"
 
+    @pytest.fixture(autouse=True)
+    def accept_keys_in_tests(self):
+        """BYOK now validates keys against the REAL provider before saving
+        (Fix 1); tests inject an accepting validator via the module seam.
+        The rejection test overrides this with its own patch."""
+        providers._testing_key_validator = lambda spec, key: (True, "")
+        yield
+        providers._testing_key_validator = None
+
     def test_post_stores_encrypted_and_flips_connected(self, api_user):
         user, client = api_user
         response = client.post(
@@ -326,3 +335,108 @@ class TestBYOK:
         from chat.crypto import decrypt_secret, encrypt_secret
         ciphertext = encrypt_secret("gsk_roundtrip")
         assert decrypt_secret(ciphertext) == "gsk_roundtrip"
+
+
+class TestKeyValidation:
+    """Fix 1: pasted keys are checked with a real (cheap) provider call."""
+
+    class StubResponse:
+        def __init__(self, status_code):
+            self.status_code = status_code
+
+    class StubClient:
+        def __init__(self, status=200, exc=None):
+            self._status, self._exc = status, exc
+            self.calls = []
+
+        def get(self, url, **kw):
+            self.calls.append(("GET", url))
+            if self._exc:
+                raise self._exc
+            return TestKeyValidation.StubResponse(self._status)
+
+        def post(self, url, **kw):
+            self.calls.append(("POST", url))
+            if self._exc:
+                raise self._exc
+            return TestKeyValidation.StubResponse(self._status)
+
+    def _spec(self, provider):
+        return next(s for s in providers.REGISTRY if s["provider"] == provider)
+
+    def test_openai_and_groq_use_free_models_list(self):
+        import httpx
+
+        for provider in ("openai", "groq"):
+            client = self.StubClient(status=200)
+            ok, msg = providers.validate_key(self._spec(provider), "sk_ok", client=client)
+            assert ok, f"{provider}: {msg}"
+            assert client.calls == [("GET", f"{self._spec(provider)['base_url']}/models")]
+
+    def test_anthropic_uses_smallest_possible_call(self):
+        client = self.StubClient(status=200)
+        ok, msg = providers.validate_key(self._spec("anthropic"), "sk_ok", client=client)
+        assert ok, msg
+        method, url = client.calls[0]
+        assert (method, url) == ("POST", f"{self._spec('anthropic')['base_url']}/messages")
+
+    def test_gemini_uses_free_models_list(self):
+        client = self.StubClient(status=200)
+        ok, msg = providers.validate_key(self._spec("gemini"), "AIza_ok", client=client)
+        assert ok, msg
+        assert client.calls[0][1].endswith("/models")
+
+    @pytest.mark.parametrize("status", [401, 403])
+    def test_rejected_key_returns_clear_message(self, status):
+        client = self.StubClient(status=status)
+        ok, msg = providers.validate_key(self._spec("groq"), "sk_bad", client=client)
+        assert not ok
+        assert "rejected by groq" in msg
+
+    def test_rate_limited_still_authenticates(self):
+        # 429 means auth PASSED (they counted us) — good enough to save.
+        client = self.StubClient(status=429)
+        ok, _ = providers.validate_key(self._spec("openai"), "sk_ok", client=client)
+        assert ok
+
+    def test_transport_error_rejects_without_saving(self):
+        import httpx
+
+        client = self.StubClient(exc=httpx.ConnectError("no route"))
+        ok, msg = providers.validate_key(self._spec("gemini"), "AIza_x", client=client)
+        assert not ok and "Could not reach" in msg
+
+    def test_view_saves_nothing_when_key_rejected(self, api_user):
+        user, client = api_user
+        providers._testing_key_validator = lambda spec, key: (
+            False, "That key was rejected by groq — check it and try again."
+        )
+        try:
+            response = client.post(
+                "/api/chat/keys/",
+                {"provider": "groq", "api_key": "gsk_totally_wrong"},
+                format="json",
+            )
+        finally:
+            providers._testing_key_validator = None
+        assert response.status_code == 400
+        assert "rejected by groq" in response.json()["api_key"]
+        from chat.models import UserProviderKey
+        assert not UserProviderKey.objects.filter(user=user, provider="groq").exists()
+
+    def test_key_source_field_distinguishes_funding(self, api_user):
+        _, client = api_user
+        body = client.get(MODELS_URL).json()
+        assert all(m["key_source"] == "none" for m in body)  # no keys anywhere
+
+        providers._testing_key_validator = lambda spec, key: (True, "")
+        try:
+            client.post("/api/chat/keys/", {"provider": "groq", "api_key": "gsk_mine"}, format="json")
+        finally:
+            providers._testing_key_validator = None
+        body = {m["id"]: m for m in client.get(MODELS_URL).json()}
+        assert body["llama-3.3-70b"]["key_source"] == "user"
+
+        with patch.dict("os.environ", {"GROQ_API_KEY": "gsk_global"}):
+            fresh = {m["id"]: m for m in client.get(MODELS_URL).json()}
+            assert fresh["llama-3.3-70b"]["key_source"] == "global"  # env wins

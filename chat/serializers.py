@@ -13,6 +13,7 @@ class ChatModelsSerializer(serializers.Serializer):
     label = serializers.CharField()
     model_name = serializers.CharField()
     connected = serializers.BooleanField()
+    key_source = serializers.CharField()  # global | user | none (Fix 2)
 
 
 class TurnCreateSerializer(serializers.Serializer):

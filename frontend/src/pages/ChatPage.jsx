@@ -31,6 +31,27 @@ export default function ChatPage() {
     if (user) refreshModels()
   }, [user]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Providers connected via the USER's OWN key only (key_source === 'user');
+  // global/operator keys have nothing to disconnect here.
+  const ownKeyProviders = [...new Set(
+    models.filter((m) => m.key_source === 'user').map((m) => m.provider),
+  )]
+
+  async function disconnectKey(provider) {
+    setError('')
+    try {
+      await api(`/chat/keys/${provider}/`, { method: 'DELETE' })
+      const fresh = await api('/chat/models/')
+      setModels(fresh)
+      // A just-disconnected model must not stay queued for a run.
+      setSelected((prev) =>
+        prev.filter((id) => fresh.find((m) => m.id === id)?.connected),
+      )
+    } catch (err) {
+      setError(JSON.stringify(err.payload) || 'Could not disconnect key')
+    }
+  }
+
   async function submitKey() {
     if (!byokFor || !byokKey.trim() || byokBusy) return
     setByokBusy(true); setError('')
@@ -183,6 +204,26 @@ export default function ChatPage() {
         ))}
         {!models.length && <span className="muted mono">loading registry…</span>}
       </div>
+
+      {ownKeyProviders.length > 0 && (
+        <div className="own-keys">
+          <span className="mono own-keys-label">YOUR CONNECTED KEYS</span>
+          {ownKeyProviders.map((provider) => {
+            const enabled = models.filter((m) => m.provider === provider)
+            return (
+              <span key={provider} className="own-key-row">
+                <span className="own-key-provider">{provider}</span>
+                <span className="muted mono">
+                  {enabled.length} model{enabled.length === 1 ? '' : 's'} · your key
+                </span>
+                <button className="btn btn-ghost btn-small" onClick={() => disconnectKey(provider)}>
+                  DISCONNECT
+                </button>
+              </span>
+            )
+          })}
+        </div>
+      )}
 
       {byokFor && (
         <div className="byok-form">

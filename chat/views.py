@@ -290,6 +290,13 @@ class ProviderKeyView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # One cheap REAL call before saving: a rejected key must fail HERE,
+        # not mid-chat (BYOK Fix 1). Nothing is stored on failure.
+        spec = next(s for s in providers.REGISTRY if s["provider"] == provider)
+        ok, message = providers.validate_key(spec, api_key)
+        if not ok:
+            return Response({"api_key": message}, status=status.HTTP_400_BAD_REQUEST)
+
         from .crypto import encrypt_secret
         from .models import UserProviderKey
 

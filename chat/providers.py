@@ -120,6 +120,9 @@ MAX_OUTPUT_TOKENS = int(_env("CHAT_MAX_TOKENS", "512"))       # per-model cap
 
 # Test seam: when set, stream_chat() calls this instead of the network.
 _testing_stream = None
+# Test seam for key validation: when set, validate_key() consults this
+# instead of the network (see chat/tests). Production never sets it.
+_testing_key_validator = None
 
 
 def get_spec(model_id: str) -> dict | None:
@@ -168,6 +171,19 @@ def vendor_model(spec: dict) -> str:
     return _env(spec["vendor_model_env"]) or spec["id"]
 
 
+def key_source(spec: dict, user) -> str:
+    """'global' | 'user' | 'none' — who is funding this provider's usage.
+
+    Lets the frontend show a disconnect control ONLY for the user's own
+    keys (global/operator keys have nothing to disconnect here).
+    """
+    if is_connected(spec):
+        return "global"
+    if user_key_for(spec, user) is not None:
+        return "user"
+    return "none"
+
+
 def public_models(user=None) -> list[dict]:
     """Registry view for the API/frontend — booleans only, never keys.
 
@@ -181,6 +197,7 @@ def public_models(user=None) -> list[dict]:
             "label": spec["label"],
             "model_name": vendor_model(spec),
             "connected": is_connected_for(spec, user),
+            "key_source": key_source(spec, user),
         }
         for spec in REGISTRY
     ]
@@ -327,6 +344,73 @@ async def _stream_gemini(spec, prompt, history, usage, api_key) -> AsyncGenerato
                         token = part.get("text")
                         if token:
                             yield token
+
+
+# ---------------------------------------------------------------------------
+# Key validation (BYOK Fix 1): one cheap REAL call before saving anything.
+# ---------------------------------------------------------------------------
+VALIDATION_TIMEOUT = float(_env("CHAT_KEYCHECK_TIMEOUT_SECONDS", "8"))
+
+
+def validate_key(spec: dict, api_key: str, client=None) -> tuple[bool, str]:
+    """Confirm the key authenticates with the provider before it is stored.
+
+    Returns (ok, message). Strategies, cheapest first:
+      * openai / groq (OpenAI-compatible): GET {base}/models — auth only,
+        generates nothing.
+      * gemini: GET {base}/models?key= — same idea on Google's API.
+      * anthropic: no free auth-only endpoint in wide use, so the smallest
+        possible real call: a 1-token-max message (spec'd by the upgrade).
+
+    401/403 => rejected. 2xx (and 429: rate-limited but *authenticated*)
+    => accepted. Transport errors/timeouts => "could not reach" (saves
+    nothing — an unverified key is exactly the mid-chat failure this
+    validation exists to prevent).
+    """
+    if _testing_key_validator is not None:  # testing seam
+        return _testing_key_validator(spec, api_key)
+
+    import httpx
+
+    owns = client is None
+    client = client or httpx.Client(timeout=VALIDATION_TIMEOUT)
+    provider = spec["provider"]
+    try:
+        if provider in ("openai", "groq"):
+            response = client.get(
+                f"{spec['base_url']}/models",
+                headers={"Authorization": f"Bearer {api_key}"},
+            )
+        elif provider == "gemini":
+            response = client.get(
+                f"{spec['base_url']}/models", params={"key": api_key}
+            )
+        elif provider == "anthropic":
+            response = client.post(
+                f"{spec['base_url']}/messages",
+                headers={
+                    "x-api-key": api_key,
+                    "anthropic-version": "2023-06-01",
+                },
+                json={
+                    "model": vendor_model(spec),
+                    "max_tokens": 1,
+                    "messages": [{"role": "user", "content": "hi"}],
+                },
+            )
+        else:  # pragma: no cover - registry is closed today
+            return True, ""
+
+        if response.status_code in (401, 403):
+            return False, f"That key was rejected by {provider} — check it and try again."
+        if response.status_code >= 500:
+            return False, f"{provider} returned HTTP {response.status_code} while checking the key — try again."
+        return True, ""  # 2xx, 429 and other 4xx-with-auth-passed are good enough
+    except httpx.HTTPError:
+        return False, f"Could not reach {provider} to verify the key — try again in a moment."
+    finally:
+        if owns:
+            client.close()
 
 
 def estimate_tokens(text: str) -> int:
