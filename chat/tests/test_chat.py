@@ -365,7 +365,6 @@ class TestKeyValidation:
         return next(s for s in providers.REGISTRY if s["provider"] == provider)
 
     def test_openai_and_groq_use_free_models_list(self):
-        import httpx
 
         for provider in ("openai", "groq"):
             client = self.StubClient(status=200)
