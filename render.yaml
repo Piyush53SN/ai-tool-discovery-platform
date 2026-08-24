@@ -13,10 +13,15 @@ services:
   - type: web
     name: ai-tool-api
     runtime: docker
-    plan: starter
+    # Free (Hobby) tier: 0.1 vCPU / 512 MB, sleeps after 15 min idle.
+    # Change to "starter" ($7/mo, always-on) if the sleep is unacceptable.
+    plan: free
     healthCheckPath: /api/
     autoDeploy: true
     envVars:
+      # One worker on the 512 MB free instance (2+ on paid plans).
+      - key: GUNICORN_WORKERS
+        value: "1"
       # Generated once by Render; keep it stable — rotating it invalidates
       # JWTs and BYOK-encrypted Model Lab keys.
       - key: SECRET_KEY

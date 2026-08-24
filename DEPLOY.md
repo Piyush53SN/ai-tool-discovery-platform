@@ -18,8 +18,16 @@ Supabase (free)       — Postgres 15+ with the pgvector `vector` extension
 | Piece      | What it hosts            | Cost                                  |
 |------------|--------------------------|---------------------------------------|
 | Netlify    | `frontend/` (built SPA)  | Free tier (100 GB bandwidth/month)    |
-| Render     | Django API (Docker)      | Web Starter — $7/mo (no free tier)    |
-| Supabase   | Postgres + pgvector      | Free tier (500 MB DB; auto-pause rules apply) |
+| Render     | Django API (Docker)      | **Free** Hobby web service — $0       |
+| Supabase   | Postgres + pgvector      | Free tier (500 MB DB)                 |
+
+**Total: $0/month.** The free Render web service (0.1 vCPU / 512 MB)
+**sleeps after ~15 min of inactivity**; the first visitor after a sleep
+waits ~30–60 s for wake-up (plus one background re-seed check). It also has
+a 5 GB/month workspace bandwidth cap — fine for a demo, since Netlify
+serves the SPA and only JSON API traffic hits Render. If you outgrow the
+sleep, the same service moves to the Starter plan ($7/mo, always-on) with
+one dashboard click — no code changes.
 
 > **Why Supabase and not Render's Postgres?** The app *requires* the
 > pgvector `vector` extension (384-dim embeddings next to the relational
@@ -65,12 +73,15 @@ everywhere). Estimated total time: **10–15 minutes**.
    branch).
 3. Configure:
    - **Runtime: Docker** (Render finds the `Dockerfile` at the repo root).
-   - **Plan: Starter** is enough for the lightweight build (no torch).
-     If you enable real embeddings (below), use **Standard** (2 GB RAM).
+   - **Plan: Free** (Hobby — 0.1 vCPU / 512 MB, no card usually needed;
+     some accounts are asked for one, and the 5 GB/month bandwidth cap
+     applies). The lightweight build is sized for exactly this instance
+     (1 gunicorn worker, no torch).
    - **Health Check Path: `/api/`** (a JSON endpoint that returns 200).
    - Optional, only for real embeddings: **Docker build args** →
      `INSTALL_MLM=1` (bakes in sentence-transformers + CPU torch; image
-     grows ~1.5 GB, build takes a few minutes longer).
+     grows ~1.5 GB — on the free 512 MB instance the MiniLM model will
+     OOM, so use this **only** on a paid plan with ≥ 1 GB RAM).
 4. **Environment** tab — set exactly these (values in `‹…›` are yours):
 
    | Key                    | Value                                                                 |
@@ -80,6 +91,7 @@ everywhere). Estimated total time: **10–15 minutes**.
    | `ALLOWED_HOSTS`        | the service's public URL, e.g. `ai-tool-api.onrender.com`              |
    | `CORS_ALLOWED_ORIGINS` | the Netlify URL you'll get in Step 3, e.g. `https://my-tools.netlify.app` |
    | `DEBUG`                | `False`                                                                 |
+   | `GUNICORN_WORKERS`     | `1` (free 512 MB instance) — raise to `2`+ only on paid plans          |
 
    (`ALLOWED_HOSTS` and `CORS_ALLOWED_ORIGINS` need the final URLs, so set
    them now with the Render URL from this page's preview, and update
@@ -94,8 +106,12 @@ everywhere). Estimated total time: **10–15 minutes**.
 5. **Deploy**. First build ~3–6 min (lightweight) or 10+ min (with MLM).
    Watch the logs: you should see the migrations run, then
    `Catalog ready: 127 tools` (seeding continues in the background —
-   give it a minute if `/api/tools/` returns an empty list right after
-   deploy).
+   give it a minute or two on the free 0.1-vCPU instance if
+   `/api/tools/` returns an empty list right after deploy).
+   Note for the free plan: after this deploy, the service will **sleep
+   after ~15 min with no traffic** and wake in 30–60 s on the next visit.
+   To keep it warm during a live demo, just keep the page open or hit
+   `https://‹service›.onrender.com/api/` in a browser tab.
 6. Sanity-check from your machine:
    ```bash
    curl https://‹service›.onrender.com/api/        # JSON service index
@@ -155,12 +171,22 @@ No re-migration needed: the container runs `migrate` on every boot, and
 | `password authentication failed` on Render deploy | `DATABASE_URL` must be the **pooler (6543)** URI from Supabase's Connection details, copied in full. |
 | OOM / service crashes after enabling `INSTALL_MLM=1` | The MiniLM model needs more memory — move the service to the Standard plan (2 GB). |
 | `502` right after a Render deploy | First boot = migrate + gunicorn startup (~20–40 s); retry in a moment. |
+| First request after idle is slow (30–60 s) | Normal on the free Render tier — the instance slept and is waking up; also the Supabase DB may need ~1 min to un-pause after a week without visits. |
+| OOM kills on Render (free tier) | Keep `INSTALL_MLM` off and `GUNICORN_WORKERS=1` on the 512 MB free instance. |
+| Bandwidth warning from Render | The free workspace is capped at 5 GB/month — expected only if the site goes viral; move to Starter ($7/mo, 25 GB+). |
 
 ## Cost summary (monthly, at demo scale)
 
-- Netlify free tier: $0
-- Supabase free tier: $0 (auto-pauses after 1 week of inactivity — any
-  visit reactivates it in ~1 min; a scheduled visit from any page view
-  keeps it warm)
-- Render Web Starter: $7
-- **Total: $7/mo** (or $0 + $7 while Render bills)
+- Netlify free tier: **$0**
+- Supabase free tier: **$0** (auto-pauses after ~1 week without any visit;
+  the next visit reactivates it in ~1 min)
+- Render free (Hobby) web service: **$0** (sleeps after ~15 min idle;
+  5 GB/month bandwidth)
+- **Total: $0/month**
+
+Want it always-on with no cold starts? Same setup, no code changes:
+switch the Render service to the **Starter** plan ($7/mo). Or go fully
+VM-based on **Oracle Cloud's always-free tier** (4 ARM cores / 24 GB,
+Mumbai region, no card) — run the whole stack incl. real MiniLM
+embeddings on one machine; that's a manual-ops route (systemd + nginx),
+not one-click.

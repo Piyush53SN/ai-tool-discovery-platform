@@ -49,10 +49,11 @@ Want a public URL anyone can open and try? **`DEPLOY.md`** walks through the
 10–15 minute setup on **Netlify** (React SPA) + **Render** (Django API,
 Docker) + **Supabase** (Postgres with the pgvector `vector` extension) —
 all the config is already in this repo (`netlify.toml`, `Dockerfile`,
-`.dockerignore`, `render.yaml`). Only paid piece: the Render web service
-(~$7/mo). The result is a single link — `https://<site>.netlify.app` —
-with a seeded 127-tool catalog and a ready demo login
-(`demo` / `demo-pass-123`).
+`.dockerignore`, `render.yaml`). **$0/month** on the free tiers (the free
+Render instance sleeps after ~15 min idle; flip it to the $7/mo Starter
+plan for always-on). The result is a single link —
+`https://<site>.netlify.app` — with a seeded 127-tool catalog and a ready
+demo login (`demo` / `demo-pass-123`).
 
 ## Quickstart
 

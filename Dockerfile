@@ -40,4 +40,6 @@ COPY . .
 EXPOSE 8000
 
 # Render sets $PORT. `exec` so gunicorn is PID 1 and receives SIGTERM.
-CMD ["sh", "-c", "python manage.py migrate --noinput && (python manage.py seed_tools >/seed.log 2>&1 & ) && exec gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 2 --timeout 120"]
+# GUNICORN_WORKERS: keep at 1 on the free/Hobby instance (512 MB RAM);
+# raise to 2-4 on paid plans with more memory.
+CMD ["sh", "-c", "python manage.py migrate --noinput && (python manage.py seed_tools >/seed.log 2>&1 & ) && exec gunicorn config.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers ${GUNICORN_WORKERS:-1} --timeout 120"]
