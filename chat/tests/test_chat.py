@@ -49,8 +49,8 @@ class TestModelsEndpoint:
         ids = {m["id"]: m for m in body}
         assert set(ids) == {s["id"] for s in providers.REGISTRY}
         assert ids["gpt-4o-mini"]["connected"] is True
-        assert ids["llama-3.3-70b"]["connected"] is True
-        assert ids["claude-3-5-haiku"]["connected"] is False  # honest state
+        assert ids["openai/gpt-oss-120b"]["connected"] is True
+        assert ids["claude-haiku-4-5"]["connected"] is False  # honest state
         # keys are never exposed, only booleans
         assert "sk-test" not in json.dumps(body)
 
@@ -62,7 +62,7 @@ class TestTurnCreation:
     def test_creates_turn_and_pending_responses(self, api_user):
         _, client = api_user
         response = self._post(
-            client, prompt="Compare yourselves", model_ids=["gpt-4o-mini", "gemini-2.0-flash"]
+            client, prompt="Compare yourselves", model_ids=["gpt-4o-mini", "gemini-3.6-flash"]
         )
         assert response.status_code == 201
         turn_id = response.json()["turn_id"]
@@ -70,7 +70,7 @@ class TestTurnCreation:
         assert turn.responses.count() == 2
         assert all(r.status == "pending" for r in turn.responses.all())
         assert {r.model_id for r in turn.responses.all()} == {
-            "gpt-4o-mini", "gemini-2.0-flash"
+            "gpt-4o-mini", "gemini-3.6-flash"
         }
 
     def test_reuses_conversation(self, api_user):
@@ -141,13 +141,13 @@ class TestStreamEndpoint:
 
     def test_not_connected_streams_error_never_fake(self, api_user):
         user, client = api_user
-        turn = self._turn(user, models=("claude-3-5-haiku",))
-        _, chunks = self._consume(client, turn, "claude-3-5-haiku")
+        turn = self._turn(user, models=("claude-haiku-4-5",))
+        _, chunks = self._consume(client, turn, "claude-haiku-4-5")
         events = [json.loads(c.removeprefix("data: ").strip()) for c in chunks]
         assert len(events) == 1
         assert "error" in events[0]
         assert "not connected" in events[0]["error"].lower()
-        row = turn.responses.get(model_id="claude-3-5-haiku")
+        row = turn.responses.get(model_id="claude-haiku-4-5")
         row.refresh_from_db()
         assert row.status == "error"
         assert "not connected" in row.error_message.lower()
@@ -174,7 +174,7 @@ class TestStreamEndpoint:
     def test_unknown_model_for_turn_is_400(self, api_user):
         user, client = api_user
         turn = self._turn(user)
-        response = client.get(f"{TURNS_URL}{turn.id}/stream/gemini-2.0-flash/")
+        response = client.get(f"{TURNS_URL}{turn.id}/stream/gemini-3.6-flash/")
         assert response.status_code == 400
         assert "not part of this turn" in response.json()["detail"]
 
@@ -263,19 +263,19 @@ class TestBYOK:
         assert "gsk_my_secret_key_123" not in row.key_ciphertext  # not plaintext
         assert row.key_ciphertext.startswith("gAAAA")             # Fernet envelope
 
-        spec = providers.get_spec("llama-3.3-70b")
+        spec = providers.get_spec("openai/gpt-oss-120b")
         assert not providers.is_connected(spec)                    # global: no
         assert providers.is_connected_for(spec, user)              # BYOK: yes
 
     def test_models_endpoint_is_user_aware(self, api_user, api):
         user, client = api_user
         before = {m["id"]: m["connected"] for m in client.get(MODELS_URL).json()}
-        assert before["llama-3.1-8b-instant"] is False
+        assert before["openai/gpt-oss-20b"] is False
         client.post(self.KEYS_URL, {"provider": "groq", "api_key": "gsk_user_key"}, format="json")
         after = {m["id"]: m["connected"] for m in client.get(MODELS_URL).json()}
-        assert after["llama-3.3-70b"] is True
-        assert after["llama-3.1-8b-instant"] is True               # same provider key
-        assert after["gemma2-9b-it"] is True
+        assert after["openai/gpt-oss-120b"] is True
+        assert after["openai/gpt-oss-20b"] is True               # same provider key
+        assert after["meta-llama/llama-4-scout-17b-16e-instruct"] is True
         assert after["gpt-4o-mini"] is False                       # other providers unaffected
 
         # other users see no change (a second, key-less authenticated user)
@@ -284,7 +284,7 @@ class TestBYOK:
         stranger_client = APIClient()
         stranger_client.force_authenticate(user=stranger)
         other = {m["id"]: m["connected"] for m in stranger_client.get(MODELS_URL).json()}
-        assert other["llama-3.3-70b"] is False
+        assert other["openai/gpt-oss-120b"] is False
 
     def test_stream_uses_the_user_key_not_global_env(self, api_user):
         user, client = api_user
@@ -301,10 +301,10 @@ class TestBYOK:
             session = ChatSession.objects.create(user=user)
             turn = ChatTurn.objects.create(session=session, prompt="hi")
             ModelResponse.objects.create(
-                turn=turn, model_id="llama-3.3-70b", provider="groq",
-                model_name="llama-3.3-70b-versatile",
+                turn=turn, model_id="openai/gpt-oss-120b", provider="groq",
+                model_name="openai/gpt-oss-120b",
             )
-            response = client.get(f"{TURNS_URL}{turn.id}/stream/llama-3.3-70b/")
+            response = client.get(f"{TURNS_URL}{turn.id}/stream/openai/gpt-oss-120b/")
             assert response.status_code == 200
             chunks = [c.decode() for c in response.streaming_content]
             assert any('"token": "ok"' in c for c in chunks)
@@ -318,7 +318,7 @@ class TestBYOK:
         gone = client.delete(f"{self.KEYS_URL}gemini/")
         assert gone.status_code == 200
         assert gone.json() == {"provider": "gemini", "deleted": True, "connected": False}
-        spec = providers.get_spec("gemini-2.0-flash")
+        spec = providers.get_spec("gemini-3.6-flash")
         assert not providers.is_connected_for(spec, user)
 
     def test_unknown_provider_rejected(self, api_user):
@@ -434,8 +434,8 @@ class TestKeyValidation:
         finally:
             providers._testing_key_validator = None
         body = {m["id"]: m for m in client.get(MODELS_URL).json()}
-        assert body["llama-3.3-70b"]["key_source"] == "user"
+        assert body["openai/gpt-oss-120b"]["key_source"] == "user"
 
         with patch.dict("os.environ", {"GROQ_API_KEY": "gsk_global"}):
             fresh = {m["id"]: m for m in client.get(MODELS_URL).json()}
-            assert fresh["llama-3.3-70b"]["key_source"] == "global"  # env wins
+            assert fresh["openai/gpt-oss-120b"]["key_source"] == "global"  # env wins

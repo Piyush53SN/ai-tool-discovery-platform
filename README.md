@@ -261,7 +261,15 @@ model (`data: {"token": …}` → `data: {"done": true, "usage": …}` or
 normalised to plain tokens; registry-driven so new models are an env var, not
 a code change (`OPENAI_CHAT_MODEL` etc.). Seven registry models ship, and the
 free-to-obtain keys (Groq, Google) alone populate five of them — no paid keys
-required for a full Model Lab. **Bring-your-own-key:** clicking an unconnected
+required for a full Model Lab.
+
+**Registry maintenance (recurring):** providers deprecate model IDs on their
+own schedules — e.g. Gemini 2.0 Flash was removed outright, both Groq Llama
+models shut down 2026-08-16, and Claude 3.5 Haiku retired. Re-audit
+`chat/providers.py` REGISTRY periodically against each provider's own docs
+(OpenAI deprecations page, docs.claude.com model overview,
+ai.google.dev/gemini-api/docs/models, console.groq.com/docs/deprecations);
+known sunset dates are noted inline. Last full audit: **2026-08-24**. **Bring-your-own-key:** clicking an unconnected
 chip opens an inline form; pasted keys are Fernet-encrypted at rest, never
 echoed, and connect that provider for that user only (`POST /api/chat/keys/`,
 `DELETE /api/chat/keys/{provider}/`).

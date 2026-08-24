@@ -54,7 +54,8 @@ urlpatterns = [
     path("chat/keys/<str:provider>/", ProviderKeyView.as_view(), name="chat-provider-key-delete"),
     path("chat/turns/", TurnView.as_view(), name="chat-turn-create"),
     path(
-        "chat/turns/<uuid:turn_id>/stream/<str:model_id>/",
+        # path converter: current vendor ids contain slashes (e.g. openai/gpt-oss-120b)
+        "chat/turns/<uuid:turn_id>/stream/<path:model_id>/",
         TurnStreamView.as_view(),
         name="chat-turn-stream",
     ),

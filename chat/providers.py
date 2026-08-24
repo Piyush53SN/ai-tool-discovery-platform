@@ -44,6 +44,13 @@ class NotConfigured(Exception):
 # Registry — the single place a new model gets added (Section 7).
 # Model names are env-overridable so operators can move to newer releases
 # without code changes: e.g. OPENAI_CHAT_MODEL=gpt-5-mini.
+#
+# MAINTENANCE (recurring, not one-time): providers deprecate models on their
+# own schedules — this registry must be re-audited against each provider's
+# CURRENT docs periodically (OpenAI: developers.openai.com/api/docs/deprecations,
+# Anthropic: docs.claude.com model overview, Google: ai.google.dev/gemini-api/
+# docs/models, Groq: console.groq.com/docs/deprecations). Last full audit:
+# 2026-08-24. Entries below note known sunset dates where published.
 # ---------------------------------------------------------------------------
 def _env(name: str, default: str = "") -> str:
     return os.environ.get(name, default).strip()
@@ -51,6 +58,8 @@ def _env(name: str, default: str = "") -> str:
 
 REGISTRY: list[dict] = [
     {
+        # Still served as of 2026-08-24, but inside OpenAI's "legacy chat
+        # models" wave shutting down 2026-10-23 — successor: gpt-5.4-mini.
         "id": "gpt-4o-mini",
         "provider": "openai",
         "label": "GPT-4o mini",
@@ -59,17 +68,21 @@ REGISTRY: list[dict] = [
         "base_url": _env("OPENAI_BASE_URL", "https://api.openai.com/v1"),
     },
     {
-        "id": "claude-3-5-haiku",
+        # claude-3-5-haiku retired by Anthropic; alias resolves to the
+        # latest haiku-4.5 snapshot (claude-haiku-4-5-20251001).
+        "id": "claude-haiku-4-5",
         "provider": "anthropic",
-        "label": "Claude 3.5 Haiku",
+        "label": "Claude Haiku 4.5",
         "vendor_model_env": "ANTHROPIC_CHAT_MODEL",
         "api_key_env": "ANTHROPIC_API_KEY",
         "base_url": _env("ANTHROPIC_BASE_URL", "https://api.anthropic.com/v1"),
     },
     {
-        "id": "gemini-2.0-flash",
+        # gemini-2.0-flash returns 404 (Google points here); 2.5 line is
+        # legacy — 3.6 Flash is the current standard tier (2026-08-24).
+        "id": "gemini-3.6-flash",
         "provider": "gemini",
-        "label": "Gemini 2.0 Flash",
+        "label": "Gemini 3.6 Flash",
         "vendor_model_env": "GEMINI_CHAT_MODEL",
         "api_key_env": "GOOGLE_API_KEY",
         "base_url": _env(
@@ -78,9 +91,9 @@ REGISTRY: list[dict] = [
     },
     {
         # Same free GOOGLE_API_KEY, lighter/faster tier — no new adapter.
-        "id": "gemini-2.5-flash-lite",
+        "id": "gemini-3.5-flash-lite",
         "provider": "gemini",
-        "label": "Gemini 2.5 Flash-Lite",
+        "label": "Gemini 3.5 Flash-Lite",
         "vendor_model_env": "GEMINI_CHAT_MODEL_LITE",
         "api_key_env": "GOOGLE_API_KEY",
         "base_url": _env(
@@ -88,27 +101,31 @@ REGISTRY: list[dict] = [
         ),
     },
     {
-        # Same free GROQ_API_KEY, fastest Groq tier (highest rate limits).
-        "id": "llama-3.1-8b-instant",
+        # llama-3.1-8b-instant shut down on Groq 2026-08-16; Groq's own
+        # recommended replacement is OpenAI's open-weights gpt-oss-20b.
+        "id": "openai/gpt-oss-20b",
         "provider": "groq",
-        "label": "Llama 3.1 8B Instant (Groq)",
-        "vendor_model_env": "GROQ_CHAT_MODEL_8B",
+        "label": "GPT-OSS 20B (Groq)",
+        "vendor_model_env": "GROQ_CHAT_MODEL_OSS20B",
         "api_key_env": "GROQ_API_KEY",
         "base_url": _env("GROQ_BASE_URL", "https://api.groq.com/openai/v1"),
     },
     {
-        # Same free GROQ_API_KEY, Google's open-weights model.
-        "id": "gemma2-9b-it",
+        # gemma2-9b-it deprecated on Groq 2025-08-08; Llama 4 Scout is the
+        # current non-reasoning open-weights instruct model.
+        "id": "meta-llama/llama-4-scout-17b-16e-instruct",
         "provider": "groq",
-        "label": "Gemma2 9B (Groq)",
-        "vendor_model_env": "GROQ_CHAT_MODEL_GEMMA2",
+        "label": "Llama 4 Scout (Groq)",
+        "vendor_model_env": "GROQ_CHAT_MODEL_SCOUT",
         "api_key_env": "GROQ_API_KEY",
         "base_url": _env("GROQ_BASE_URL", "https://api.groq.com/openai/v1"),
     },
     {
-        "id": "llama-3.3-70b",
+        # llama-3.3-70b-versatile shut down on Groq 2026-08-16; Groq's own
+        # recommended replacement is the open-weights gpt-oss-120b.
+        "id": "openai/gpt-oss-120b",
         "provider": "groq",
-        "label": "Llama 3.3 70B (Groq)",
+        "label": "GPT-OSS 120B (Groq)",
         "vendor_model_env": "GROQ_CHAT_MODEL",
         "api_key_env": "GROQ_API_KEY",
         "base_url": _env("GROQ_BASE_URL", "https://api.groq.com/openai/v1"),
