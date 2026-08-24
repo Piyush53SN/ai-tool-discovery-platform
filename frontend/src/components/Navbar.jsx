@@ -34,16 +34,33 @@ export default function Navbar() {
   // ---- sliding active-tab underline: one accent bar, measured and moved
   // between tabs on navigation (transform/width transition in CSS).
   const linkRefs = useRef([])
+  const navRef = useRef(null)
   const [indicator, setIndicator] = useState({ width: 0, x: 0, visible: false })
 
   const activeIndex = ROUTES.findIndex((r) =>
     r.exact ? location.pathname === r.to : location.pathname.startsWith(r.to),
   )
 
+  // Measure the active tab's real bounding box relative to the nav container,
+  // which is the indicator's containing block (.nav-links, position: relative)
+  // — one shared coordinate frame, so translateX(x) + width land exactly under
+  // the active tab regardless of tab order, label length, or viewport width.
+  // scrollLeft compensates for the mobile overflow-x container (the indicator
+  // scrolls with the tab row, so positions must be in unscrolled content coords).
   const measure = () => {
     const el = activeIndex >= 0 ? linkRefs.current[activeIndex] : null
-    if (el) setIndicator({ width: el.offsetWidth, x: el.offsetLeft, visible: true })
-    else setIndicator((prev) => ({ ...prev, visible: false }))
+    const container = navRef.current
+    if (el && container) {
+      const rect = el.getBoundingClientRect()
+      const cRect = container.getBoundingClientRect()
+      setIndicator({
+        width: rect.width,
+        x: rect.left - cRect.left + container.scrollLeft,
+        visible: true,
+      })
+    } else {
+      setIndicator((prev) => ({ ...prev, visible: false }))
+    }
   }
   useLayoutEffect(measure, [activeIndex])
   useEffect(() => {
@@ -57,7 +74,7 @@ export default function Navbar() {
         <span className="brand-mark" aria-hidden>≡</span>
         <span>AI Tool <b>Discovery</b></span>
       </Link>
-      <nav className="nav-links">
+      <nav className="nav-links" ref={navRef}>
         {ROUTES.map((r, i) => (
           <NavLink
             key={r.to}

@@ -198,7 +198,10 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
   display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius);
 }
 .brand b { color: var(--accent); font-weight: 700; }
-.nav-links { display: flex; flex: 1; align-items: stretch; }
+/* position: relative makes .nav-links the containing block for the
+   absolutely-positioned .nav-indicator (and the offsetParent of the tabs),
+   so the measured offsets and the rendered bar share one coordinate frame. */
+.nav-links { position: relative; display: flex; flex: 1; align-items: stretch; }
 .nav-links a {
   display: flex; align-items: center; padding: 0 16px; margin: 0;
   font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em;
@@ -209,7 +212,7 @@ html.theme-anim, html.theme-anim *, html.theme-anim *::before, html.theme-anim *
 /* Sliding indicator: one absolutely-positioned accent bar moved (via
    transform/width, measured in Navbar.jsx) between tabs on navigation. */
 .nav-indicator {
-  position: absolute; bottom: 0; height: 2px; background: var(--accent);
+  position: absolute; bottom: 0; left: 0; height: 2px; background: var(--accent);
   transition: transform 0.18s ease, width 0.18s ease, opacity 0.18s ease;
 }
 .nav-auth { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
