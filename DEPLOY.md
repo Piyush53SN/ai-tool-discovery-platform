@@ -37,6 +37,33 @@ one dashboard click — no code changes.
 You need free accounts on all three (each ~2 min, GitHub login works
 everywhere). Estimated total time: **10–15 minutes**.
 
+## Fast path: one command (recommended)
+
+If you have the three access tokens, everything below is automated by
+`scripts/deploy_cloud.py` (Python 3.8+, stdlib only — no pip installs).
+On your own machine:
+
+```bash
+export SUPABASE_TOKEN=***   # supabase.com → Account → Access tokens
+export RENDER_API_KEY=***   # render.com  → Account → API Keys
+export NETLIFY_TOKEN=***    # app.netlify.com → Personal access tokens
+python scripts/deploy_cloud.py            # or: python3 …
+```
+
+Missing tokens are prompted for (input hidden). The script creates the
+Supabase project (Mumbai by default) + enables pgvector, creates the free
+Render Docker service with all env vars, creates the Netlify site with
+`VITE_API_BASE` baked in, waits for every deploy, reconciles the cross
+links (CORS origin / allowed hosts), runs an end-to-end check (SPA, API,
+CORS preflight, catalog seed, demo login) and prints the final link.
+Re-running is safe — it reuses resources it already created.
+
+One prerequisite it can't do for you: **Render → avatar → Account →
+GitHub → Connect** (once). Then the manual walkthrough below — which the
+script follows step by step — is what's happening under the hood.
+
+---
+
 ---
 
 ## Step 1 — Supabase (the database) · ~3 min
