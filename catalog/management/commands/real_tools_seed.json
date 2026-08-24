@@ -1,0 +1,1651 @@
+[
+  {
+    "name": "ChatGPT",
+    "url": "https://chatgpt.com",
+    "category": "Chatbots & Assistants",
+    "pricing_tier": "freemium",
+    "tags": [
+      "api",
+      "multilingual",
+      "real-time",
+      "collaboration"
+    ],
+    "description": "OpenAI's general-purpose conversational assistant. It drafts and edits documents, explains concepts, writes and debugs code, analyzes uploaded files, and generates images, with memory and custom instructions that persist across conversations."
+  },
+  {
+    "name": "Claude",
+    "url": "https://claude.ai",
+    "category": "Chatbots & Assistants",
+    "pricing_tier": "freemium",
+    "tags": [
+      "api",
+      "long-form",
+      "document-editing",
+      "summarization"
+    ],
+    "description": "Anthropic's assistant, built around careful reasoning and large context windows. Particularly strong at long-document analysis, nuanced professional writing, and multi-step tasks executed through tool use and Projects."
+  },
+  {
+    "name": "Gemini",
+    "url": "https://gemini.google.com",
+    "category": "Chatbots & Assistants",
+    "pricing_tier": "freemium",
+    "tags": [
+      "api",
+      "multilingual",
+      "real-time",
+      "integration"
+    ],
+    "description": "Google's multimodal assistant, woven into Search and Workspace. Handles text, images, audio and code in one conversation, and grounds answers in fresh web results when asked."
+  },
+  {
+    "name": "Microsoft Copilot",
+    "url": "https://copilot.microsoft.com",
+    "category": "Chatbots & Assistants",
+    "pricing_tier": "freemium",
+    "tags": [
+      "integration",
+      "multilingual",
+      "real-time",
+      "windows"
+    ],
+    "description": "Microsoft's assistant baked into Windows, Edge and Bing. Answers questions with cited web sources, generates images, and on Windows machines can adjust settings and summarize documents."
+  },
+  {
+    "name": "Poe",
+    "url": "https://poe.com",
+    "category": "Chatbots & Assistants",
+    "pricing_tier": "freemium",
+    "tags": [
+      "aggregator",
+      "prompt-library",
+      "multilingual"
+    ],
+    "description": "Quora's aggregator for chatting with many frontier and open models under one subscription. Includes a bot builder for combining a base model with your own instructions."
+  },
+  {
+    "name": "Perplexity",
+    "url": "https://www.perplexity.ai",
+    "category": "Research & Education",
+    "pricing_tier": "freemium",
+    "tags": [
+      "research",
+      "real-time",
+      "summarization",
+      "api"
+    ],
+    "description": "An answer engine that searches the live web and replies with concise summaries whose every claim is footnoted to a source. Focus mode narrows searches to academic papers, forums or social posts."
+  },
+  {
+    "name": "Jasper",
+    "url": "https://www.jasper.ai",
+    "category": "Marketing & SEO",
+    "pricing_tier": "paid",
+    "tags": [
+      "copywriting",
+      "marketing",
+      "brand-voice",
+      "team-plan"
+    ],
+    "description": "A marketing writing platform aimed at content teams. Trains a brand voice on your existing copy, then generates campaigns, blog posts and ads that stay inside that voice, with collaboration and review built in."
+  },
+  {
+    "name": "Copy.ai",
+    "url": "https://www.copy.ai",
+    "category": "Marketing & SEO",
+    "pricing_tier": "freemium",
+    "tags": [
+      "copywriting",
+      "marketing",
+      "email",
+      "workflow-automation"
+    ],
+    "description": "Started as an ad-copy generator and grew into a go-to-market workflow engine. Chains research, drafting and enrichment steps into playbooks for outbound sales and campaign content."
+  },
+  {
+    "name": "Writesonic",
+    "url": "https://writesonic.com",
+    "category": "Writing",
+    "pricing_tier": "freemium",
+    "tags": [
+      "copywriting",
+      "seo",
+      "long-form",
+      "marketing"
+    ],
+    "description": "An AI writer oriented to search traffic: briefs, drafts and optimizes articles against live SERP data, with built-in fact-checking with citations and bulk generation for agencies."
+  },
+  {
+    "name": "Grammarly",
+    "url": "https://www.grammarly.com",
+    "category": "Writing",
+    "pricing_tier": "freemium",
+    "tags": [
+      "grammar",
+      "browser-extension",
+      "writing-assistant",
+      "team-plan"
+    ],
+    "description": "A writing checker that lives everywhere you type, flagging grammar, clarity and tone issues in real time. The generative layer rewrites sentences and paragraphs, and enterprise plans enforce shared style guides."
+  },
+  {
+    "name": "QuillBot",
+    "url": "https://quillbot.com",
+    "category": "Writing",
+    "pricing_tier": "freemium",
+    "tags": [
+      "grammar",
+      "paraphrasing",
+      "summarization",
+      "browser-extension"
+    ],
+    "description": "A paraphrasing toolkit popular with students: rewrites sentences in several registers, summarizes long passages, checks grammar and manages citations."
+  },
+  {
+    "name": "Wordtune",
+    "url": "https://www.wordtune.com",
+    "category": "Writing",
+    "pricing_tier": "freemium",
+    "tags": [
+      "grammar",
+      "writing-assistant",
+      "browser-extension",
+      "personalization"
+    ],
+    "description": "A sentence-level rewriting assistant. Select any awkward sentence and it offers casual and formal alternatives that keep your meaning while tightening the phrasing."
+  },
+  {
+    "name": "ProWritingAid",
+    "url": "https://prowritingaid.com",
+    "category": "Writing",
+    "pricing_tier": "freemium",
+    "tags": [
+      "grammar",
+      "style-analysis",
+      "writing-assistant",
+      "fiction"
+    ],
+    "description": "A deep-editing suite for long-form writers. Beyond grammar it reports on pacing, repetition, dialogue tags and sticky sentences, working inside Word, Google Docs and its own editor."
+  },
+  {
+    "name": "LanguageTool",
+    "url": "https://languagetool.org",
+    "category": "Writing",
+    "pricing_tier": "freemium",
+    "tags": [
+      "grammar",
+      "multilingual",
+      "browser-extension",
+      "open-source"
+    ],
+    "description": "An open-source proofreader covering thirty-plus languages, with a rephrasing mode and honest self-hosting options for teams that want text to stay on their infrastructure."
+  },
+  {
+    "name": "DeepL Write",
+    "url": "https://www.deepl.com/write",
+    "category": "Writing",
+    "pricing_tier": "free",
+    "tags": [
+      "translation",
+      "grammar",
+      "multilingual",
+      "tone"
+    ],
+    "description": "A writing improver from the DeepL translation team. Reworks sentences for precision and natural flow, with tone selection, and pairs with the company's widely used translator."
+  },
+  {
+    "name": "Rytr",
+    "url": "https://rytr.me",
+    "category": "Writing",
+    "pricing_tier": "freemium",
+    "tags": [
+      "copywriting",
+      "templates",
+      "multilingual"
+    ],
+    "description": "A lightweight, inexpensive AI writer built around forty-plus use-case templates, from product descriptions to YouTube intros, with tone controls and a plagiarism checker."
+  },
+  {
+    "name": "Anyword",
+    "url": "https://anyword.com",
+    "category": "Writing",
+    "pricing_tier": "freemium",
+    "tags": [
+      "copywriting",
+      "marketing",
+      "predictive-scoring"
+    ],
+    "description": "A copywriting tool that scores every generated variant against historical ad performance before you publish it, so marketers can pick versions predicted to convert rather than just read well."
+  },
+  {
+    "name": "HyperWrite",
+    "url": "https://www.hyperwriteai.com",
+    "category": "Writing",
+    "pricing_tier": "freemium",
+    "tags": [
+      "writing-assistant",
+      "personalization",
+      "browser-extension",
+      "email"
+    ],
+    "description": "An everyday writing companion: autowrite continues your drafts, specialized tools handle emails and blog sections, and a personal model learns your voice over time."
+  },
+  {
+    "name": "Sudowrite",
+    "url": "https://www.sudowrite.com",
+    "category": "Writing",
+    "pricing_tier": "paid",
+    "tags": [
+      "fiction",
+      "long-form",
+      "brainstorming",
+      "writing-assistant"
+    ],
+    "description": "A creative-writing studio for novelists. It expands rough beats into prose, offers rewrite modes like 'more intense' or 'simpler', and helps brainstorm character and plot twists without hijacking the author's voice."
+  },
+  {
+    "name": "NovelAI",
+    "url": "https://novelai.net",
+    "category": "Writing",
+    "pricing_tier": "paid",
+    "tags": [
+      "fiction",
+      "long-form",
+      "image-generation",
+      "privacy"
+    ],
+    "description": "A subscription storytelling sandbox with narrative-tuned language models that keep your prose and characters consistent, plus anime-styled image generation, all without training on your private library."
+  },
+  {
+    "name": "Notion AI",
+    "url": "https://www.notion.so/product/ai",
+    "category": "Productivity",
+    "pricing_tier": "freemium",
+    "tags": [
+      "note-taking",
+      "summarization",
+      "collaboration",
+      "writing-assistant"
+    ],
+    "description": "AI woven directly into Notion pages and databases: ask questions about your workspace, autofill database properties from page content, and draft or summarize any document where you already work."
+  },
+  {
+    "name": "Mem",
+    "url": "https://get.mem.ai",
+    "category": "Productivity",
+    "pricing_tier": "freemium",
+    "tags": [
+      "note-taking",
+      "personalization",
+      "api",
+      "knowledge-management"
+    ],
+    "description": "A note repository organized by an AI instead of folders. Everything you capture is embedded and resurfaced by relevance, and its chat answers questions from your own history."
+  },
+  {
+    "name": "Obsidian",
+    "url": "https://obsidian.md",
+    "category": "Productivity",
+    "pricing_tier": "free",
+    "tags": [
+      "note-taking",
+      "knowledge-management",
+      "plugins",
+      "local-first"
+    ],
+    "description": "A local-first knowledge base of plain Markdown files. Its large plugin ecosystem wires in language models for summarizing, tagging and searching a vault that never leaves your machine."
+  },
+  {
+    "name": "Otter.ai",
+    "url": "https://otter.ai",
+    "category": "Productivity",
+    "pricing_tier": "freemium",
+    "tags": [
+      "transcription",
+      "meeting-notes",
+      "collaboration",
+      "real-time"
+    ],
+    "description": "A meeting notetaker that joins calls live, transcribes with speaker labels, and pushes summaries and action items to Slack and your calendar. Supports live chat with the transcript during the meeting."
+  },
+  {
+    "name": "Fireflies.ai",
+    "url": "https://fireflies.ai",
+    "category": "Productivity",
+    "pricing_tier": "freemium",
+    "tags": [
+      "transcription",
+      "meeting-notes",
+      "workflow-automation",
+      "team-plan"
+    ],
+    "description": "A conversation-intelligence recorder for sales and team meetings. It transcribes, scores talk time and sentiment, and syncs notes and highlights to CRMs like Salesforce and HubSpot."
+  },
+  {
+    "name": "Fathom",
+    "url": "https://fathom.video",
+    "category": "Productivity",
+    "pricing_tier": "freemium",
+    "tags": [
+      "transcription",
+      "meeting-notes",
+      "summarization",
+      "crm"
+    ],
+    "description": "A free AI notetaker for video calls that records, transcribes and highlights the moments you flag live, then hands you a summary with action items minutes after the call ends."
+  },
+  {
+    "name": "Rewind",
+    "url": "https://www.rewind.ai",
+    "category": "Productivity",
+    "pricing_tier": "paid",
+    "tags": [
+      "personalization",
+      "real-time",
+      "macos",
+      "memory"
+    ],
+    "description": "A personal memory app that indexes what you've seen, said and typed on your Mac so you can search your own history — including meeting details you forgot to note."
+  },
+  {
+    "name": "Gamma",
+    "url": "https://gamma.app",
+    "category": "Productivity",
+    "pricing_tier": "freemium",
+    "tags": [
+      "presentation",
+      "no-code",
+      "web-publishing",
+      "templates"
+    ],
+    "description": "A prompt-to-deck generator: describe a topic and it assembles a structured, restyled presentation that you can publish as an interactive web page or export to PowerPoint."
+  },
+  {
+    "name": "Reclaim.ai",
+    "url": "https://reclaim.ai",
+    "category": "Productivity",
+    "pricing_tier": "freemium",
+    "tags": [
+      "scheduling",
+      "calendar",
+      "workflow-automation",
+      "habits"
+    ],
+    "description": "A smart calendar assistant that defends focus time, schedules habits and books meetings around priorities, replanning your day automatically when things slip."
+  },
+  {
+    "name": "Motion",
+    "url": "https://www.usemotion.com",
+    "category": "Productivity",
+    "pricing_tier": "paid",
+    "tags": [
+      "project-management",
+      "scheduling",
+      "team-plan",
+      "planning"
+    ],
+    "description": "Part project manager, part calendar. It turns task lists, deadlines and meetings into one continuously re-prioritized daily plan for individuals and small teams."
+  },
+  {
+    "name": "Clockwise",
+    "url": "https://www.clockwise.com",
+    "category": "Productivity",
+    "pricing_tier": "freemium",
+    "tags": [
+      "scheduling",
+      "calendar",
+      "team-plan",
+      "focus-time"
+    ],
+    "description": "A calendar optimizer for teams that swaps meetings around to manufacture uninterrupted focus blocks and resolves scheduling conflicts automatically."
+  },
+  {
+    "name": "Superhuman",
+    "url": "https://superhuman.com",
+    "category": "Productivity",
+    "pricing_tier": "paid",
+    "tags": [
+      "email",
+      "personalization",
+      "speed",
+      "triage"
+    ],
+    "description": "A premium email client rebuilt around speed, with AI that triages your inbox, drafts replies in your voice and splits important mail from noise across Gmail and Outlook."
+  },
+  {
+    "name": "Shortwave",
+    "url": "https://www.shortwave.com",
+    "category": "Productivity",
+    "pricing_tier": "freemium",
+    "tags": [
+      "email",
+      "summarization",
+      "search",
+      "gmail"
+    ],
+    "description": "An AI inbox on top of Gmail that summarizes threads into digests, pinpoints action items and lets you search and ask questions about years of mail."
+  },
+  {
+    "name": "SaneBox",
+    "url": "https://www.sanebox.com",
+    "category": "Productivity",
+    "pricing_tier": "freemium",
+    "tags": [
+      "email",
+      "filtering",
+      "workflow-automation",
+      "training"
+    ],
+    "description": "An email triage layer that trains itself on how you treat senders, moving unimportant mail out of the inbox and summarizing what it parked."
+  },
+  {
+    "name": "Miro AI",
+    "url": "https://miro.com/ai-whiteboard/",
+    "category": "Productivity",
+    "pricing_tier": "freemium",
+    "tags": [
+      "whiteboarding",
+      "brainstorming",
+      "summarization",
+      "collaboration"
+    ],
+    "description": "Generative helpers on the Miro whiteboard: expand sticky notes into clusters, summarize boards, synthesize user stories and generate images inside workshops."
+  },
+  {
+    "name": "Whimsical AI",
+    "url": "https://whimsical.com/ai",
+    "category": "Productivity",
+    "pricing_tier": "freemium",
+    "tags": [
+      "flowcharts",
+      "brainstorming",
+      "mind-maps",
+      "diagrams"
+    ],
+    "description": "One-click expansion for diagrams: give it a seed idea and it grows mind maps and flowcharts, so planning starts structured instead of blank."
+  },
+  {
+    "name": "Airtable AI",
+    "url": "https://www.airtable.com/product/ai",
+    "category": "Productivity",
+    "pricing_tier": "freemium",
+    "tags": [
+      "database",
+      "no-code",
+      "workflow-automation",
+      "categorization"
+    ],
+    "description": "AI fields inside Airtable bases that summarize records, classify text, draft replies and translate — turning a no-code database into a lightweight automation layer."
+  },
+  {
+    "name": "Raycast",
+    "url": "https://www.raycast.com",
+    "category": "Productivity",
+    "pricing_tier": "freemium",
+    "tags": [
+      "launcher",
+      "macos",
+      "api",
+      "developer-tools"
+    ],
+    "description": "A Mac launcher with built-in AI chat, quick commands and an extension store, so answers, snippets and app control are one hotkey away from anywhere."
+  },
+  {
+    "name": "GitHub Copilot",
+    "url": "https://github.com/features/copilot",
+    "category": "Code & Development",
+    "pricing_tier": "paid",
+    "tags": [
+      "code-generation",
+      "developer-tools",
+      "ide-plugin",
+      "git"
+    ],
+    "description": "The coding assistant embedded in VS Code, JetBrains and github.com. It completes code inline from comments and context, chats about your repository, and drafts pull-request descriptions."
+  },
+  {
+    "name": "Cursor",
+    "url": "https://cursor.com",
+    "category": "Code & Development",
+    "pricing_tier": "freemium",
+    "tags": [
+      "code-generation",
+      "developer-tools",
+      "editor",
+      "codebase-context"
+    ],
+    "description": "A code editor built AI-first. Its chat indexes your whole repository, applies multi-file edits from a prompt, and steps through terminal commands, with inline completions as you type."
+  },
+  {
+    "name": "Windsurf",
+    "url": "https://windsurf.com",
+    "category": "Code & Development",
+    "pricing_tier": "freemium",
+    "tags": [
+      "code-generation",
+      "editor",
+      "codebase-context",
+      "agentic"
+    ],
+    "description": "An agentic IDE from the Codeium team: a flows-with-you assistant that keeps the entire codebase in context, refactors across files and runs the build to check its own work."
+  },
+  {
+    "name": "Tabnine",
+    "url": "https://www.tabnine.com",
+    "category": "Code & Development",
+    "pricing_tier": "freemium",
+    "tags": [
+      "code-generation",
+      "developer-tools",
+      "privacy",
+      "self-hosted"
+    ],
+    "description": "A code completion hub for enterprises that care about provenance: it trains on permissive code only and can run fully inside your VPC while learning team conventions."
+  },
+  {
+    "name": "Sourcegraph Cody",
+    "url": "https://sourcegraph.com/cody",
+    "category": "Code & Development",
+    "pricing_tier": "freemium",
+    "tags": [
+      "code-generation",
+      "codebase-context",
+      "developer-tools",
+      "enterprise"
+    ],
+    "description": "A coding assistant with deep code-search roots. It retrieves the relevant slices of large monorepos to answer architecture questions and generate patches grounded in your real code."
+  },
+  {
+    "name": "Snyk",
+    "url": "https://snyk.io",
+    "category": "Code & Development",
+    "pricing_tier": "freemium",
+    "tags": [
+      "security",
+      "developer-tools",
+      "code-review",
+      "open-source"
+    ],
+    "description": "A developer-security platform that continuously scans dependencies, containers and IaC for vulnerabilities, then proposes the fix as a pull request you can review in one click."
+  },
+  {
+    "name": "v0 by Vercel",
+    "url": "https://v0.dev",
+    "category": "Code & Development",
+    "pricing_tier": "freemium",
+    "tags": [
+      "ui-generation",
+      "react",
+      "shadcn",
+      "code-generation"
+    ],
+    "description": "A generative UI tool that turns prompts and screenshots into React and Tailwind components built on shadcn/ui, editable in place and deployable to Vercel straight from the draft."
+  },
+  {
+    "name": "bolt.new",
+    "url": "https://bolt.new",
+    "category": "Code & Development",
+    "pricing_tier": "freemium",
+    "tags": [
+      "full-stack",
+      "code-generation",
+      "web-container",
+      "prototyping"
+    ],
+    "description": "A browser workspace from StackBlitz that scaffolds full-stack apps from a prompt, runs Node in a WebContainer, installs packages and deploys, without a local setup."
+  },
+  {
+    "name": "Replit",
+    "url": "https://replit.com",
+    "category": "Code & Development",
+    "pricing_tier": "freemium",
+    "tags": [
+      "editor",
+      "code-generation",
+      "deployment",
+      "collaboration"
+    ],
+    "description": "A cloud IDE with an AI agent that builds, runs and debugs projects end to end in hosted workspaces, then ships them on Replit's own hosting with databases included."
+  },
+  {
+    "name": "Warp",
+    "url": "https://www.warp.dev",
+    "category": "Code & Development",
+    "pricing_tier": "freemium",
+    "tags": [
+      "terminal",
+      "cli",
+      "developer-tools",
+      "agent"
+    ],
+    "description": "A terminal rebuilt as a modern app: blocks make output copyable, and the built-in agent explains failed commands, suggests the next one and scripts workflows from natural language."
+  },
+  {
+    "name": "Aider",
+    "url": "https://aider.chat",
+    "category": "Code & Development",
+    "pricing_tier": "free",
+    "tags": [
+      "cli",
+      "open-source",
+      "git",
+      "pair-programming"
+    ],
+    "description": "An open-source terminal pair programmer. You chat, it edits files across your repo and commits each change to git with a sensible message — scriptable and editor-agnostic."
+  },
+  {
+    "name": "Qodo",
+    "url": "https://www.qodo.ai",
+    "category": "Code & Development",
+    "pricing_tier": "freemium",
+    "tags": [
+      "test-generation",
+      "code-review",
+      "developer-tools",
+      "quality"
+    ],
+    "description": "A code-integrity assistant that analyzes behavior to generate meaningful test suites, review PRs for edge cases and risks, and explain unfamiliar legacy code."
+  },
+  {
+    "name": "Mintlify",
+    "url": "https://mintlify.com",
+    "category": "Code & Development",
+    "pricing_tier": "freemium",
+    "tags": [
+      "documentation",
+      "code-generation",
+      "developer-tools",
+      "hosting"
+    ],
+    "description": "Documentation that writes itself: it generates and keeps docs in sync with your codebase, answers user questions from those docs, and hosts a polished reference site."
+  },
+  {
+    "name": "LangChain",
+    "url": "https://www.langchain.com",
+    "category": "Code & Development",
+    "pricing_tier": "freemium",
+    "tags": [
+      "framework",
+      "open-source",
+      "llm-apps",
+      "python"
+    ],
+    "description": "The de-facto framework for LLM applications: chains, agents, tool calls and retrieval patterns in Python and JavaScript, plus LangSmith for tracing what your agents actually did."
+  },
+  {
+    "name": "LlamaIndex",
+    "url": "https://www.llamaindex.ai",
+    "category": "Code & Development",
+    "pricing_tier": "freemium",
+    "tags": [
+      "framework",
+      "rag",
+      "open-source",
+      "python"
+    ],
+    "description": "A data framework for retrieval-augmented generation: connectors ingest documents and databases, indices chunk and embed them, and query engines answer with citations."
+  },
+  {
+    "name": "Hugging Face",
+    "url": "https://huggingface.co",
+    "category": "Code & Development",
+    "pricing_tier": "freemium",
+    "tags": [
+      "model-hub",
+      "open-source",
+      "datasets",
+      "inference"
+    ],
+    "description": "The hub of the open-model ecosystem: hundreds of thousands of models and datasets, the transformers library, and hosted inference endpoints for running any of them in production."
+  },
+  {
+    "name": "Hex",
+    "url": "https://hex.tech",
+    "category": "Data & Analytics",
+    "pricing_tier": "freemium",
+    "tags": [
+      "notebooks",
+      "sql",
+      "data-visualization",
+      "collaboration"
+    ],
+    "description": "A collaborative data notebook with an AI copilot that writes and fixes SQL and Python, explains results, and turns cells into shareable interactive apps for stakeholders."
+  },
+  {
+    "name": "Julius AI",
+    "url": "https://julius.ai",
+    "category": "Data & Analytics",
+    "pricing_tier": "freemium",
+    "tags": [
+      "data-visualization",
+      "spreadsheets",
+      "analysis",
+      "statistics"
+    ],
+    "description": "A conversational analyst: upload a spreadsheet and ask questions in plain English to get charts, regressions and forecasts, with the code it ran shown alongside."
+  },
+  {
+    "name": "Rows",
+    "url": "https://rows.com",
+    "category": "Data & Analytics",
+    "pricing_tier": "freemium",
+    "tags": [
+      "spreadsheets",
+      "api",
+      "data-visualization",
+      "integration"
+    ],
+    "description": "A spreadsheet with superpowers aimed at growth and finance teams: live integrations pull data from ads platforms and CRMs, and AI functions analyze it in place."
+  },
+  {
+    "name": "Text2SQL.ai",
+    "url": "https://text2sql.ai",
+    "category": "Data & Analytics",
+    "pricing_tier": "freemium",
+    "tags": [
+      "sql",
+      "code-generation",
+      "developer-tools",
+      "schema"
+    ],
+    "description": "Converts natural-language questions into SQL for your schema, with dialect awareness for Postgres, BigQuery, Snowflake and friends, plus training on your own tables."
+  },
+  {
+    "name": "Polymer",
+    "url": "https://www.polymersearch.com",
+    "category": "Data & Analytics",
+    "pricing_tier": "freemium",
+    "tags": [
+      "data-visualization",
+      "spreadsheets",
+      "no-code",
+      "dashboards"
+    ],
+    "description": "A no-code dashboard builder: point it at a spreadsheet and it suggests visualizations and insights, then publishes an interactive dashboard anyone on the team can explore."
+  },
+  {
+    "name": "Metabase",
+    "url": "https://www.metabase.com",
+    "category": "Data & Analytics",
+    "pricing_tier": "freemium",
+    "tags": [
+      "data-visualization",
+      "open-source",
+      "sql",
+      "self-hosted",
+      "bi"
+    ],
+    "description": "An open-source BI tool where anyone can ask questions of company data through a friendly builder or SQL, then save answers as dashboards the whole team can watch."
+  },
+  {
+    "name": "Whisper API",
+    "url": "https://platform.openai.com/docs/guides/speech-to-text",
+    "category": "Video & Audio",
+    "pricing_tier": "paid",
+    "tags": [
+      "speech-to-text",
+      "transcription",
+      "api",
+      "multilingual"
+    ],
+    "description": "OpenAI's speech recognition endpoint: accurate multilingual transcription with translation built in, priced per minute, and fine-tunable on domain vocabulary."
+  },
+  {
+    "name": "ElevenLabs",
+    "url": "https://elevenlabs.io",
+    "category": "Video & Audio",
+    "pricing_tier": "freemium",
+    "tags": [
+      "text-to-speech",
+      "voice-cloning",
+      "multilingual",
+      "api"
+    ],
+    "description": "The reference for realistic synthetic speech: instant voices in dozens of languages, cloning from minutes of audio, and dubbing that preserves the original speaker's tone."
+  },
+  {
+    "name": "Murf AI",
+    "url": "https://murf.ai",
+    "category": "Video & Audio",
+    "pricing_tier": "freemium",
+    "tags": [
+      "text-to-speech",
+      "voiceover",
+      "e-learning",
+      "studio"
+    ],
+    "description": "A voiceover studio with a hundred-plus studio voices: control pitch, pauses and emphasis per word, sync to slides or video, and iterate without re-booking talent."
+  },
+  {
+    "name": "Descript",
+    "url": "https://www.descript.com",
+    "category": "Video & Audio",
+    "pricing_tier": "freemium",
+    "tags": [
+      "video-editing",
+      "transcription",
+      "podcasting",
+      "overdub"
+    ],
+    "description": "Edits audio and video by editing the transcript: delete a sentence and the media follows. Studio Sound cleans recordings, and overdub fixes flubs in a cloned voice."
+  },
+  {
+    "name": "Runway",
+    "url": "https://runwayml.com",
+    "category": "Video & Audio",
+    "pricing_tier": "freemium",
+    "tags": [
+      "text-to-video",
+      "video-editing",
+      "api",
+      "filmmaking"
+    ],
+    "description": "A generative video toolkit used in real film production: text-to-video, image-to-video with camera control, inpainting and frame interpolation, organized around a timeline editor."
+  },
+  {
+    "name": "Pika",
+    "url": "https://pika.art",
+    "category": "Video & Audio",
+    "pricing_tier": "freemium",
+    "tags": [
+      "text-to-video",
+      "animation",
+      "video-editing",
+      "social"
+    ],
+    "description": "A playful text-to-video studio: animate ideas with camera moves and effects, remix product shots and memes, and publish vertical clips straight to social."
+  },
+  {
+    "name": "Luma Dream Machine",
+    "url": "https://lumalabs.ai/dream-machine",
+    "category": "Video & Audio",
+    "pricing_tier": "freemium",
+    "tags": [
+      "text-to-video",
+      "3d",
+      "animation",
+      "photoreal"
+    ],
+    "description": "Photorealistic video generation from text or images with physically coherent motion, from the team behind leading neural capture research."
+  },
+  {
+    "name": "Synthesia",
+    "url": "https://www.synthesia.io",
+    "category": "Video & Audio",
+    "pricing_tier": "paid",
+    "tags": [
+      "avatar-video",
+      "training",
+      "localization",
+      "enterprise"
+    ],
+    "description": "Studio-quality avatar videos from a script: pick a presenter or clone yourself, type the narration, and get the same video re-voiced in 130+ languages for training libraries."
+  },
+  {
+    "name": "HeyGen",
+    "url": "https://www.heygen.com",
+    "category": "Video & Audio",
+    "pricing_tier": "freemium",
+    "tags": [
+      "avatar-video",
+      "localization",
+      "personalization",
+      "marketing"
+    ],
+    "description": "Photorealistic avatars and video translation with lip-sync: turn one recording into dozens of localized versions, or generate personalized outreach at scale."
+  },
+  {
+    "name": "Opus Clip",
+    "url": "https://www.opus.pro",
+    "category": "Video & Audio",
+    "pricing_tier": "freemium",
+    "tags": [
+      "video-editing",
+      "shorts",
+      "social-media",
+      "captions"
+    ],
+    "description": "Chops long videos and podcasts into short vertical clips: it finds the hooks, reframes to keep faces centered, adds captions and scores virality."
+  },
+  {
+    "name": "VEED",
+    "url": "https://www.veed.io",
+    "category": "Video & Audio",
+    "pricing_tier": "freemium",
+    "tags": [
+      "video-editing",
+      "subtitles",
+      "translation",
+      "browser"
+    ],
+    "description": "A browser video editor with AI conveniences: auto-subtitles in many languages, eye-contact correction, noise removal and text-to-speech voiceovers."
+  },
+  {
+    "name": "Kapwing",
+    "url": "https://www.kapwing.com",
+    "category": "Video & Audio",
+    "pricing_tier": "freemium",
+    "tags": [
+      "video-editing",
+      "collaboration",
+      "smart-cut",
+      "templates"
+    ],
+    "description": "A collaborative web editor for teams making social content: smart cut removes silences, resizing reflows for every platform, and teammates comment right on the timeline."
+  },
+  {
+    "name": "Suno",
+    "url": "https://suno.com",
+    "category": "Video & Audio",
+    "pricing_tier": "freemium",
+    "tags": [
+      "music-generation",
+      "songwriting",
+      "vocals",
+      "api"
+    ],
+    "description": "Turns a text prompt into a finished song — lyrics, vocals and arrangement across genres — and lets you extend or remix your own stems."
+  },
+  {
+    "name": "AIVA",
+    "url": "https://www.aiva.ai",
+    "category": "Video & Audio",
+    "pricing_tier": "freemium",
+    "tags": [
+      "music-generation",
+      "soundtrack",
+      "composition",
+      "midi"
+    ],
+    "description": "An AI composer focused on orchestral and cinematic scoring: generate full tracks in a style profile, then edit the MIDI piano roll like any DAW."
+  },
+  {
+    "name": "Mubert",
+    "url": "https://mubert.com",
+    "category": "Video & Audio",
+    "pricing_tier": "freemium",
+    "tags": [
+      "royalty-free-music",
+      "api",
+      "streaming",
+      "licensing"
+    ],
+    "description": "Generates endless royalty-free soundtracks per mood and activity, usable in content, apps and streams via API, with clear commercial licensing."
+  },
+  {
+    "name": "Krisp",
+    "url": "https://krisp.ai",
+    "category": "Video & Audio",
+    "pricing_tier": "freemium",
+    "tags": [
+      "noise-cancellation",
+      "transcription",
+      "meeting-notes",
+      "calls"
+    ],
+    "description": "A call enhancer that removes background noise and echo from your microphone in any conferencing app, layering live transcription and meeting notes on top."
+  },
+  {
+    "name": "AssemblyAI",
+    "url": "https://www.assemblyai.com",
+    "category": "Video & Audio",
+    "pricing_tier": "freemium",
+    "tags": [
+      "speech-to-text",
+      "api",
+      "summarization",
+      "redaction"
+    ],
+    "description": "A speech-intelligence API beyond transcription: chapters, topics, sentiment, auto-chapters and PII redaction over audio streams or files."
+  },
+  {
+    "name": "Deepgram",
+    "url": "https://deepgram.com",
+    "category": "Video & Audio",
+    "pricing_tier": "freemium",
+    "tags": [
+      "speech-to-text",
+      "api",
+      "real-time",
+      "stt"
+    ],
+    "description": "Fast, accurate speech recognition built on its own foundation models, with streaming and batch APIs, diarization and on-prem deployment."
+  },
+  {
+    "name": "Wondercraft",
+    "url": "https://www.wondercraft.ai",
+    "category": "Video & Audio",
+    "pricing_tier": "freemium",
+    "tags": [
+      "podcasting",
+      "text-to-speech",
+      "translation",
+      "studio"
+    ],
+    "description": "A text-to-podcast studio: pick realistic AI hosts, add music beds, and regenerate whole episodes in another language from the same script."
+  },
+  {
+    "name": "Midjourney",
+    "url": "https://www.midjourney.com",
+    "category": "Image Generation",
+    "pricing_tier": "paid",
+    "tags": [
+      "text-to-image",
+      "art",
+      "stylization",
+      "community"
+    ],
+    "description": "The image model with the strongest aesthetic signature: painterly, cinematic renders steered by text and reference images, edited in a web canvas with region-aware tools."
+  },
+  {
+    "name": "DALL·E 3",
+    "url": "https://openai.com/dall-e-3",
+    "category": "Image Generation",
+    "pricing_tier": "freemium",
+    "tags": [
+      "text-to-image",
+      "api",
+      "image-editing",
+      "integration"
+    ],
+    "description": "OpenAI's image generator, known for following elaborate prompts closely and rendering legible text. Available through ChatGPT and a developer API with inpainting."
+  },
+  {
+    "name": "Stable Diffusion",
+    "url": "https://stability.ai",
+    "category": "Image Generation",
+    "pricing_tier": "free",
+    "tags": [
+      "text-to-image",
+      "open-source",
+      "self-hosted",
+      "fine-tuning"
+    ],
+    "description": "Stability AI's open-weight image family. Self-hostable and endlessly fine-tunable, with the largest ecosystem of community checkpoints, LoRAs and ControlNets."
+  },
+  {
+    "name": "FLUX",
+    "url": "https://blackforestlabs.ai",
+    "category": "Image Generation",
+    "pricing_tier": "freemium",
+    "tags": [
+      "text-to-image",
+      "open-weights",
+      "typography",
+      "api"
+    ],
+    "description": "Black Forest Labs' diffusion-transformer family with excellent prompt adherence and text rendering, available both as open weights for local use and via API."
+  },
+  {
+    "name": "Ideogram",
+    "url": "https://ideogram.ai",
+    "category": "Image Generation",
+    "pricing_tier": "freemium",
+    "tags": [
+      "text-to-image",
+      "typography",
+      "logo",
+      "poster"
+    ],
+    "description": "The text-to-image model to pick when the image must contain readable words: posters, logos and layouts come out with clean typography instead of alphabet soup."
+  },
+  {
+    "name": "Leonardo.Ai",
+    "url": "https://leonardo.ai",
+    "category": "Image Generation",
+    "pricing_tier": "freemium",
+    "tags": [
+      "text-to-image",
+      "game-assets",
+      "image-editing",
+      "api"
+    ],
+    "description": "A production image platform for game and product teams: fine-tuned style models, a canvas editor with inpainting, and consistent characters across generations."
+  },
+  {
+    "name": "Krea",
+    "url": "https://www.krea.ai",
+    "category": "Image Generation",
+    "pricing_tier": "freemium",
+    "tags": [
+      "text-to-image",
+      "real-time",
+      "image-editing",
+      "canvas"
+    ],
+    "description": "A real-time generation canvas: sketch or move objects and the render updates instantly, with upscalers and style training in the same workspace."
+  },
+  {
+    "name": "Playground",
+    "url": "https://playground.com",
+    "category": "Image Generation",
+    "pricing_tier": "freemium",
+    "tags": [
+      "text-to-image",
+      "image-editing",
+      "graphic-design",
+      "templates"
+    ],
+    "description": "A browser design editor where generation meets layout: templates, editing and image models together for marketing graphics rather than pure art."
+  },
+  {
+    "name": "Remove.bg",
+    "url": "https://www.remove.bg",
+    "category": "Image Generation",
+    "pricing_tier": "freemium",
+    "tags": [
+      "image-editing",
+      "background-removal",
+      "api",
+      "e-commerce"
+    ],
+    "description": "Does one thing perfectly: strips backgrounds from photos with pixel-precise edges — hair included — via web, desktop apps and an API used by e-commerce pipelines."
+  },
+  {
+    "name": "Photoroom",
+    "url": "https://www.photoroom.com",
+    "category": "Image Generation",
+    "pricing_tier": "freemium",
+    "tags": [
+      "background-removal",
+      "e-commerce",
+      "mobile-app",
+      "product-photos"
+    ],
+    "description": "Turns phone photos into studio product shots: cut out the item, drop in realistic backgrounds and shadows, batch-process a whole catalog from the mobile app."
+  },
+  {
+    "name": "Magnific",
+    "url": "https://magnific.ai",
+    "category": "Image Generation",
+    "pricing_tier": "paid",
+    "tags": [
+      "upscaling",
+      "image-editing",
+      "detail",
+      "resolution"
+    ],
+    "description": "An AI upscaler that hallucinates convincing detail: feed a low-resolution render and get a gallery-grade enlargement with adjustable creativity."
+  },
+  {
+    "name": "Picsart",
+    "url": "https://picsart.com",
+    "category": "Image Generation",
+    "pricing_tier": "freemium",
+    "tags": [
+      "image-editing",
+      "mobile-app",
+      "graphic-design",
+      "social"
+    ],
+    "description": "A creative ecosystem on mobile and web: AI background removal, object cleanup, style filters and quick logo makers, plus a stock library."
+  },
+  {
+    "name": "Craiyon",
+    "url": "https://www.craiyon.com",
+    "category": "Image Generation",
+    "pricing_tier": "free",
+    "tags": [
+      "text-to-image",
+      "free-tier",
+      "sketches",
+      "fun"
+    ],
+    "description": "The free, lightweight generator descended from DALL·E mini. Perfect for quick concept sketches and memes; not pretending to be production art."
+  },
+  {
+    "name": "NightCafe",
+    "url": "https://creator.nightcafe.studio",
+    "category": "Image Generation",
+    "pricing_tier": "freemium",
+    "tags": [
+      "text-to-image",
+      "community",
+      "art",
+      "styles"
+    ],
+    "description": "An aggregator studio hosting multiple open models, daily art challenges and a big community gallery — a social layer on top of generation."
+  },
+  {
+    "name": "Lexica",
+    "url": "https://lexica.art",
+    "category": "Image Generation",
+    "pricing_tier": "freemium",
+    "tags": [
+      "text-to-image",
+      "prompt-library",
+      "search",
+      "art"
+    ],
+    "description": "A search engine for Stable Diffusion art with the prompts attached — browse millions of images, lift the prompt that made the look, then generate your own."
+  },
+  {
+    "name": "Clipdrop",
+    "url": "https://clipdrop.co",
+    "category": "Image Generation",
+    "pricing_tier": "freemium",
+    "tags": [
+      "image-editing",
+      "api",
+      "cleanup",
+      "relight"
+    ],
+    "description": "A toolbox of focused photo utilities — cleanup, relight, uncrop, upscale, swap — each available as a one-click app and a clean API."
+  },
+  {
+    "name": "Adobe Firefly",
+    "url": "https://www.adobe.com/products/firefly.html",
+    "category": "Design & UI",
+    "pricing_tier": "freemium",
+    "tags": [
+      "text-to-image",
+      "image-editing",
+      "commercial-safe",
+      "creative-cloud"
+    ],
+    "description": "Adobe's commercially-safe generative models, embedded across Photoshop, Illustrator and Express — generative fill and expand on real layered documents."
+  },
+  {
+    "name": "Canva Magic Studio",
+    "url": "https://www.canva.com/magic-studio/",
+    "category": "Design & UI",
+    "pricing_tier": "freemium",
+    "tags": [
+      "graphic-design",
+      "text-to-image",
+      "presentation",
+      "brand-voice"
+    ],
+    "description": "The AI layer across Canva: Magic Write drafts copy, Magic Design assembles on-brand layouts from a prompt, and background tools clean up photos inside templates."
+  },
+  {
+    "name": "Figma AI",
+    "url": "https://www.figma.com/ai/",
+    "category": "Design & UI",
+    "pricing_tier": "freemium",
+    "tags": [
+      "ui-design",
+      "prototyping",
+      "collaboration",
+      "code-generation"
+    ],
+    "description": "AI inside the industry's design tool: generate first-draft layouts from a prompt, auto-rename layers, replace placeholder content, and turn selections into prototypes."
+  },
+  {
+    "name": "Uizard",
+    "url": "https://uizard.io",
+    "category": "Design & UI",
+    "pricing_tier": "freemium",
+    "tags": [
+      "ui-design",
+      "prototyping",
+      "no-code",
+      "wireframing"
+    ],
+    "description": "Turns hand-drawn sketches and plain-English prompts into editable multi-platform app designs, wireframes first and pixel-perfect later."
+  },
+  {
+    "name": "Galileo AI",
+    "url": "https://www.usegalileo.ai",
+    "category": "Design & UI",
+    "pricing_tier": "paid",
+    "tags": [
+      "ui-design",
+      "prototyping",
+      "text-to-ui",
+      "figma"
+    ],
+    "description": "Text-prompt to high-fidelity UI: full app screens with consistent components, exportable to Figma for the design team to refine."
+  },
+  {
+    "name": "Looka",
+    "url": "https://looka.com",
+    "category": "Design & UI",
+    "pricing_tier": "paid",
+    "tags": [
+      "logo",
+      "branding",
+      "no-code",
+      "brand-kit"
+    ],
+    "description": "A logo maker that finishes the job: generate marks from a brief, then export a complete brand kit — colors, fonts, business cards and social profiles."
+  },
+  {
+    "name": "Beautiful.ai",
+    "url": "https://www.beautiful.ai",
+    "category": "Design & UI",
+    "pricing_tier": "paid",
+    "tags": [
+      "presentation",
+      "storytelling",
+      "templates",
+      "teams"
+    ],
+    "description": "Presentations that arrange themselves: add content and the slide re-lays-out to stay on brand, so teams stop nudging text boxes."
+  },
+  {
+    "name": "Tome",
+    "url": "https://tome.app",
+    "category": "Design & UI",
+    "pricing_tier": "freemium",
+    "tags": [
+      "presentation",
+      "storytelling",
+      "sales",
+      "narrative"
+    ],
+    "description": "A narrative deck generator for sales and storytelling: a prompt becomes a structured presentation with generated imagery, ready to personalize per prospect."
+  },
+  {
+    "name": "Vizcom",
+    "url": "https://www.vizcom.ai",
+    "category": "Design & UI",
+    "pricing_tier": "freemium",
+    "tags": [
+      "industrial-design",
+      "sketching",
+      "rendering",
+      "hardware"
+    ],
+    "description": "Sketch-to-render for industrial and concept designers: rough line work becomes shaded, material-rich renders in seconds, preserving your stroke intent."
+  },
+  {
+    "name": "Kittl",
+    "url": "https://www.kittl.com",
+    "category": "Design & UI",
+    "pricing_tier": "freemium",
+    "tags": [
+      "graphic-design",
+      "typography",
+      "print-on-demand",
+      "vector"
+    ],
+    "description": "A design platform with serious typography — ornate display faces, vector generation and mockups aimed at merch and print-on-demand creators."
+  },
+  {
+    "name": "Intercom Fin",
+    "url": "https://www.intercom.com/fin",
+    "category": "Chatbots & Assistants",
+    "pricing_tier": "paid",
+    "tags": [
+      "customer-support",
+      "resolution",
+      "integration",
+      "helpdesk"
+    ],
+    "description": "A support agent that resolves customer conversations from your help center, with answers it can cite, confidence-based handoff to humans, and per-resolution pricing."
+  },
+  {
+    "name": "Ada",
+    "url": "https://ada.cx",
+    "category": "Chatbots & Assistants",
+    "pricing_tier": "paid",
+    "tags": [
+      "customer-support",
+      "no-code",
+      "integration",
+      "enterprise"
+    ],
+    "description": "An enterprise AI customer-service platform resolving inquiries across chat, email and voice in 100+ languages, with guardrails and analytics tuned for regulated industries."
+  },
+  {
+    "name": "Kommunicate",
+    "url": "https://www.kommunicate.io",
+    "category": "Chatbots & Assistants",
+    "pricing_tier": "freemium",
+    "tags": [
+      "customer-support",
+      "live-chat",
+      "no-code",
+      "handoff"
+    ],
+    "description": "A chatbot builder that combines GPT-powered answers grounded in your docs with smooth human handoff and a tidy inbox for the agents."
+  },
+  {
+    "name": "Chatbase",
+    "url": "https://www.chatbase.co",
+    "category": "Chatbots & Assistants",
+    "pricing_tier": "freemium",
+    "tags": [
+      "customer-support",
+      "rag",
+      "api",
+      "embed"
+    ],
+    "description": "Upload documents or point it at your site and it ships a chatbot grounded in that content, embeddable anywhere, with analytics on what customers actually ask."
+  },
+  {
+    "name": "Zapier AI",
+    "url": "https://zapier.com/ai",
+    "category": "Marketing & SEO",
+    "pricing_tier": "freemium",
+    "tags": [
+      "workflow-automation",
+      "integration",
+      "no-code",
+      "api"
+    ],
+    "description": "AI woven through 7,000+ app integrations: build Zaps by describing them, let chatbots answer from connected tools, and add AI steps to any automation."
+  },
+  {
+    "name": "Surfer SEO",
+    "url": "https://surferseo.com",
+    "category": "Marketing & SEO",
+    "pricing_tier": "paid",
+    "tags": [
+      "seo",
+      "content-briefs",
+      "keyword-research",
+      "serp"
+    ],
+    "description": "An on-page SEO editor that scores your draft against the live top results for a keyword and tells you, section by section, what to cover to compete."
+  },
+  {
+    "name": "Frase",
+    "url": "https://www.frase.io",
+    "category": "Marketing & SEO",
+    "pricing_tier": "freemium",
+    "tags": [
+      "seo",
+      "content-briefs",
+      "keyword-research",
+      "writing-assistant"
+    ],
+    "description": "Compresses the SERP research loop: it reads the top-ranking pages for your query, writes the brief, then helps draft and optimize the article against them."
+  },
+  {
+    "name": "Clearscope",
+    "url": "https://www.clearscope.io",
+    "category": "Marketing & SEO",
+    "pricing_tier": "paid",
+    "tags": [
+      "seo",
+      "content-optimization",
+      "integration",
+      "editorial"
+    ],
+    "description": "Content optimization reports for editorial teams: a letter grade, the terms to cover, and readability — inside Google Docs or its own editor."
+  },
+  {
+    "name": "SE Ranking",
+    "url": "https://seranking.com",
+    "category": "Marketing & SEO",
+    "pricing_tier": "freemium",
+    "tags": [
+      "seo",
+      "keyword-research",
+      "audit",
+      "rank-tracking"
+    ],
+    "description": "A full SEO suite with an AI writer on top: track rankings, audit sites and research keywords, then draft search-optimized articles from the tracked clusters."
+  },
+  {
+    "name": "AdCreative.ai",
+    "url": "https://www.adcreative.ai",
+    "category": "Marketing & SEO",
+    "pricing_tier": "paid",
+    "tags": [
+      "ad-copy",
+      "creative-optimization",
+      "e-commerce",
+      "ads"
+    ],
+    "description": "Generates ad creatives scored against conversion history before you spend: copy variants, images and video sized per placement, wired to your ad accounts."
+  },
+  {
+    "name": "Apollo.io",
+    "url": "https://www.apollo.io",
+    "category": "Marketing & SEO",
+    "pricing_tier": "freemium",
+    "tags": [
+      "sales-intelligence",
+      "email",
+      "workflow-automation",
+      "b2b"
+    ],
+    "description": "A B2B sales platform pairing a huge contact database with AI: it prospects lookalike buyers, sequences emails and summarizes calls."
+  },
+  {
+    "name": "Elicit",
+    "url": "https://elicit.com",
+    "category": "Research & Education",
+    "pricing_tier": "freemium",
+    "tags": [
+      "research",
+      "papers",
+      "summarization",
+      "data-extraction"
+    ],
+    "description": "A research assistant over 125 million academic papers: ask a question, get a table of relevant studies with methods and findings extracted into comparable columns."
+  },
+  {
+    "name": "Consensus",
+    "url": "https://consensus.app",
+    "category": "Research & Education",
+    "pricing_tier": "freemium",
+    "tags": [
+      "research",
+      "papers",
+      "evidence-synthesis",
+      "citations"
+    ],
+    "description": "A search engine for scientific claims: it answers yes/no questions by tallying what peer-reviewed papers say, with each supporting paper one click deep."
+  },
+  {
+    "name": "Semantic Scholar",
+    "url": "https://www.semanticscholar.org",
+    "category": "Research & Education",
+    "pricing_tier": "free",
+    "tags": [
+      "research",
+      "papers",
+      "citations",
+      "api"
+    ],
+    "description": "An AI-enhanced literature index from the Allen Institute: influential-citation weighting, TLDR summaries of papers and feeds that learn your niche."
+  },
+  {
+    "name": "Scite",
+    "url": "https://scite.ai",
+    "category": "Research & Education",
+    "pricing_tier": "paid",
+    "tags": [
+      "research",
+      "citations",
+      "papers",
+      "smart-citations"
+    ],
+    "description": "Smart citations that classify how a paper was used — supporting, contrasting or merely mentioned — so you see the argument around a claim, not just its count."
+  },
+  {
+    "name": "SciSpace",
+    "url": "https://scispace.com",
+    "category": "Research & Education",
+    "pricing_tier": "freemium",
+    "tags": [
+      "papers",
+      "summarization",
+      "literature-review",
+      "pdf"
+    ],
+    "description": "A PDF reader built for papers: explains symbols and jargon in place, answers questions about the document and assembles a literature table across your library."
+  },
+  {
+    "name": "Khanmigo",
+    "url": "https://www.khanmigo.ai",
+    "category": "Research & Education",
+    "pricing_tier": "freemium",
+    "tags": [
+      "tutoring",
+      "education",
+      "socratic",
+      "k12"
+    ],
+    "description": "Khan Academy's Socratic tutor: guides K-12 and college students through problems step by step with hints instead of answers, with teacher dashboards alongside."
+  },
+  {
+    "name": "Quizlet",
+    "url": "https://quizlet.com",
+    "category": "Research & Education",
+    "pricing_tier": "freemium",
+    "tags": [
+      "tutoring",
+      "flashcards",
+      "study",
+      "memorization"
+    ],
+    "description": "The study platform's AI layer turns any material into adaptive flashcards and practice tests, and its tutor walks you through what you keep missing."
+  },
+  {
+    "name": "Duolingo Max",
+    "url": "https://www.duolingo.com/super",
+    "category": "Research & Education",
+    "pricing_tier": "paid",
+    "tags": [
+      "language-learning",
+      "conversation",
+      "education",
+      "mobile-app"
+    ],
+    "description": "The subscription tier of the language app where learners role-play scenarios — ordering coffee, interviewing — with an AI that gently corrects their mistakes in context."
+  },
+  {
+    "name": "Photomath",
+    "url": "https://photomath.com",
+    "category": "Research & Education",
+    "pricing_tier": "freemium",
+    "tags": [
+      "math",
+      "mobile-app",
+      "education",
+      "step-by-step"
+    ],
+    "description": "Point your camera at a handwritten equation and get the solution with each step explained, plus interactive graphs for the underlying function."
+  },
+  {
+    "name": "Trello",
+    "url": "https://trello.com",
+    "category": "Productivity",
+    "pricing_tier": "freemium",
+    "tags": [
+      "project-management",
+      "no-code",
+      "boards",
+      "automation"
+    ],
+    "description": "Atlassian's board tool with an AI layer that summarizes cards, drafts checklists and answers 'what's stale on this board?' for team standups."
+  },
+  {
+    "name": "Todoist",
+    "url": "https://todoist.com",
+    "category": "Productivity",
+    "pricing_tier": "freemium",
+    "tags": [
+      "task-management",
+      "planning",
+      "natural-language",
+      "assistant"
+    ],
+    "description": "The classic to-do list with an assistant that decomposes vague goals into scheduled tasks and filters your day down to what actually matters."
+  }
+]

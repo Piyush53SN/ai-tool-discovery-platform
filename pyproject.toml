@@ -1,0 +1,26 @@
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = [".venv", "frontend", "pgdata"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # bugbear
+    "UP",  # pyupgrade
+    "DJ",  # django
+]
+ignore = [
+    "E501",  # long lines tolerated in strings/URLs (formatter enforces the rest)
+    "B008",  # function-call defaults — used for DRF serializers
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["accounts", "catalog", "config", "interactions", "recommendations"]
+
+[tool.pytest.ini_options]
+# pytest.ini wins; kept here so editors agree.
+django_settings_module = "config.settings_test"

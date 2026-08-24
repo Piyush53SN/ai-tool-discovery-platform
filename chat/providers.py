@@ -1,0 +1,435 @@
+"""
+Provider adapters for live multi-model chat (Section 4.1–4.2).
+
+One async interface, four implementations:
+
+    async def stream_chat(spec, prompt, history) -> AsyncGenerator[str]
+        spec    — registry entry (model id, provider, credentials, caps)
+        prompt  — the user's message for this turn
+        history — [{role: "user"|"assistant", content: str}, ...] prior turns
+                  of THIS model inside the same session
+
+Every adapter normalizes its vendor's streaming event format into plain
+token strings:
+
+    OpenAI / Groq (OpenAI-compatible)   choices[0].delta.content
+    Anthropic                          content_block_delta -> delta.text
+    Gemini                             streamGenerateContent candidates parts
+
+Usage/cost facts are written into the `usage` dict the caller passes in —
+providers that stream usage (OpenAI with include_usage, Anthropic
+message_delta, Gemini usageMetadata) fill it; the caller falls back to an
+estimate when they don't.
+
+Non-negotiables:
+  * API keys NEVER leave this module's process — read from env only, and the
+    registry only ever reports *whether* a key exists, never the value.
+  * No fake fallback: a missing key raises NotConfigured, and the API layer
+    turns that into an honest "not connected" state for that model.
+"""
+from __future__ import annotations
+
+import json
+import os
+from collections.abc import AsyncGenerator
+
+import httpx
+
+
+class NotConfigured(Exception):
+    """Provider API key missing — surface as 'not connected', never fake it."""
+
+
+# ---------------------------------------------------------------------------
+# Registry — the single place a new model gets added (Section 7).
+# Model names are env-overridable so operators can move to newer releases
+# without code changes: e.g. OPENAI_CHAT_MODEL=gpt-5-mini.
+#
+# MAINTENANCE (recurring, not one-time): providers deprecate models on their
+# own schedules — this registry must be re-audited against each provider's
+# CURRENT docs periodically (OpenAI: developers.openai.com/api/docs/deprecations,
+# Anthropic: docs.claude.com model overview, Google: ai.google.dev/gemini-api/
+# docs/models, Groq: console.groq.com/docs/deprecations). Last full audit:
+# 2026-08-24. Entries below note known sunset dates where published.
+# ---------------------------------------------------------------------------
+def _env(name: str, default: str = "") -> str:
+    return os.environ.get(name, default).strip()
+
+
+REGISTRY: list[dict] = [
+    {
+        # Still served as of 2026-08-24, but inside OpenAI's "legacy chat
+        # models" wave shutting down 2026-10-23 — successor: gpt-5.4-mini.
+        "id": "gpt-4o-mini",
+        "provider": "openai",
+        "label": "GPT-4o mini",
+        "vendor_model_env": "OPENAI_CHAT_MODEL",
+        "api_key_env": "OPENAI_API_KEY",
+        "base_url": _env("OPENAI_BASE_URL", "https://api.openai.com/v1"),
+    },
+    {
+        # claude-3-5-haiku retired by Anthropic; alias resolves to the
+        # latest haiku-4.5 snapshot (claude-haiku-4-5-20251001).
+        "id": "claude-haiku-4-5",
+        "provider": "anthropic",
+        "label": "Claude Haiku 4.5",
+        "vendor_model_env": "ANTHROPIC_CHAT_MODEL",
+        "api_key_env": "ANTHROPIC_API_KEY",
+        "base_url": _env("ANTHROPIC_BASE_URL", "https://api.anthropic.com/v1"),
+    },
+    {
+        # gemini-2.0-flash returns 404 (Google points here); 2.5 line is
+        # legacy — 3.6 Flash is the current standard tier (2026-08-24).
+        "id": "gemini-3.6-flash",
+        "provider": "gemini",
+        "label": "Gemini 3.6 Flash",
+        "vendor_model_env": "GEMINI_CHAT_MODEL",
+        "api_key_env": "GOOGLE_API_KEY",
+        "base_url": _env(
+            "GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta"
+        ),
+    },
+    {
+        # Same free GOOGLE_API_KEY, lighter/faster tier — no new adapter.
+        "id": "gemini-3.5-flash-lite",
+        "provider": "gemini",
+        "label": "Gemini 3.5 Flash-Lite",
+        "vendor_model_env": "GEMINI_CHAT_MODEL_LITE",
+        "api_key_env": "GOOGLE_API_KEY",
+        "base_url": _env(
+            "GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta"
+        ),
+    },
+    {
+        # llama-3.1-8b-instant shut down on Groq 2026-08-16; Groq's own
+        # recommended replacement is OpenAI's open-weights gpt-oss-20b.
+        "id": "openai/gpt-oss-20b",
+        "provider": "groq",
+        "label": "GPT-OSS 20B (Groq)",
+        "vendor_model_env": "GROQ_CHAT_MODEL_OSS20B",
+        "api_key_env": "GROQ_API_KEY",
+        "base_url": _env("GROQ_BASE_URL", "https://api.groq.com/openai/v1"),
+    },
+    {
+        # gemma2-9b-it deprecated on Groq 2025-08-08; Llama 4 Scout is the
+        # current non-reasoning open-weights instruct model.
+        "id": "meta-llama/llama-4-scout-17b-16e-instruct",
+        "provider": "groq",
+        "label": "Llama 4 Scout (Groq)",
+        "vendor_model_env": "GROQ_CHAT_MODEL_SCOUT",
+        "api_key_env": "GROQ_API_KEY",
+        "base_url": _env("GROQ_BASE_URL", "https://api.groq.com/openai/v1"),
+    },
+    {
+        # llama-3.3-70b-versatile shut down on Groq 2026-08-16; Groq's own
+        # recommended replacement is the open-weights gpt-oss-120b.
+        "id": "openai/gpt-oss-120b",
+        "provider": "groq",
+        "label": "GPT-OSS 120B (Groq)",
+        "vendor_model_env": "GROQ_CHAT_MODEL",
+        "api_key_env": "GROQ_API_KEY",
+        "base_url": _env("GROQ_BASE_URL", "https://api.groq.com/openai/v1"),
+    },
+]
+
+REQUEST_TIMEOUT = float(_env("CHAT_TIMEOUT_SECONDS", "60"))   # per-model cap
+MAX_OUTPUT_TOKENS = int(_env("CHAT_MAX_TOKENS", "512"))       # per-model cap
+
+# Test seam: when set, stream_chat() calls this instead of the network.
+_testing_stream = None
+# Test seam for key validation: when set, validate_key() consults this
+# instead of the network (see chat/tests). Production never sets it.
+_testing_key_validator = None
+
+
+def get_spec(model_id: str) -> dict | None:
+    return next((spec for spec in REGISTRY if spec["id"] == model_id), None)
+
+
+def is_connected(spec: dict) -> bool:
+    """True when a real GLOBAL API key is present (operator-funded)."""
+    return bool(_env(spec["api_key_env"]))
+
+
+def user_key_for(spec: dict, user) -> str | None:
+    """The user's own BYOK key for this provider, decrypted — or None.
+
+    Never raises; a decrypt failure (e.g. rotated SECRET_KEY) reads as
+    'no key stored'.
+    """
+    if user is None or not getattr(user, "is_authenticated", False):
+        return None
+    from .crypto import decrypt_secret
+    from .models import UserProviderKey
+
+    row = UserProviderKey.objects.filter(user=user, provider=spec["provider"]).first()
+    if row is None:
+        return None
+    return decrypt_secret(row.key_ciphertext)
+
+
+def get_api_key(spec: dict, user=None) -> str | None:
+    """Resolution order: global env var (operator-funded) -> user's BYOK key."""
+    return _env(spec["api_key_env"]) or user_key_for(spec, user)
+
+
+def is_connected_for(spec: dict, user) -> bool:
+    """Global key OR this user's stored key (BYOK, Fix C)."""
+    return is_connected(spec) or user_key_for(spec, user) is not None
+
+
+def is_reachable(spec: dict, user=None) -> bool:
+    """Connected for real (globally or per-user), OR the testing seam is
+    installed (test runs only). Drives the honest 'not connected' column."""
+    return is_connected_for(spec, user) or _testing_stream is not None
+
+
+def vendor_model(spec: dict) -> str:
+    return _env(spec["vendor_model_env"]) or spec["id"]
+
+
+def key_source(spec: dict, user) -> str:
+    """'global' | 'user' | 'none' — who is funding this provider's usage.
+
+    Lets the frontend show a disconnect control ONLY for the user's own
+    keys (global/operator keys have nothing to disconnect here).
+    """
+    if is_connected(spec):
+        return "global"
+    if user_key_for(spec, user) is not None:
+        return "user"
+    return "none"
+
+
+def public_models(user=None) -> list[dict]:
+    """Registry view for the API/frontend — booleans only, never keys.
+
+    `connected` is user-aware: a globally configured provider is connected
+    for everyone; a user-pasted BYOK key connects it for that user alone.
+    """
+    return [
+        {
+            "id": spec["id"],
+            "provider": spec["provider"],
+            "label": spec["label"],
+            "model_name": vendor_model(spec),
+            "connected": is_connected_for(spec, user),
+            "key_source": key_source(spec, user),
+        }
+        for spec in REGISTRY
+    ]
+
+
+# ---------------------------------------------------------------------------
+# SSE line parsing shared by all adapters (providers speak SSE)
+# ---------------------------------------------------------------------------
+async def _sse_payloads(response: httpx.Response) -> AsyncGenerator[dict]:
+    """Yield parsed JSON payloads from a text/event-stream response body."""
+    async for line in response.aiter_lines():
+        line = line.strip()
+        if not line.startswith("data:"):
+            continue
+        data = line[5:].strip()
+        if not data or data == "[DONE]":
+            continue
+        try:
+            yield json.loads(data)
+        except json.JSONDecodeError:
+            continue  # vendor keep-alives / comments
+
+
+# ---------------------------------------------------------------------------
+# Adapters
+# ---------------------------------------------------------------------------
+async def stream_chat(spec: dict, prompt: str, history: list[dict],
+                      usage: dict, api_key: str | None = None) -> AsyncGenerator[str]:
+    """Vendor-neutral streaming entry point. Yields plain token strings.
+
+    `api_key` (resolved via get_api_key, env-first then BYOK) is optional —
+    adapters fall back to the global env var when omitted.
+    """
+    if _testing_stream is not None:  # testing seam — see chat/tests
+        async for token in _testing_stream(spec, prompt, history, usage, api_key=api_key):
+            yield token
+        return
+
+    key = api_key or _env(spec["api_key_env"])
+    if not key:
+        raise NotConfigured(f"{spec['provider']} key not configured")
+
+    dispatch = {
+        "openai": _stream_openai_compatible,
+        "groq": _stream_openai_compatible,
+        "anthropic": _stream_anthropic,
+        "gemini": _stream_gemini,
+    }
+    adapter = dispatch[spec["provider"]]
+    async for token in adapter(spec, prompt, history, usage, api_key=key):
+        yield token
+
+
+async def _stream_openai_compatible(spec, prompt, history, usage, api_key) -> AsyncGenerator[str]:
+    """OpenAI and Groq share the chat/completions SSE shape (Section 4.1)."""
+    payload = {
+        "model": vendor_model(spec),
+        "messages": [*history, {"role": "user", "content": prompt}],
+        "stream": True,
+        "max_tokens": MAX_OUTPUT_TOKENS,
+    }
+    if spec["provider"] == "openai":
+        payload["stream_options"] = {"include_usage": True}
+
+    async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT) as client:
+        async with client.stream(
+            "POST",
+            f"{spec['base_url']}/chat/completions",
+            json=payload,
+            headers={"Authorization": f"Bearer {api_key}"},
+        ) as response:
+            if response.status_code >= 400:
+                body = (await response.aread()).decode("utf-8", "replace")[:300]
+                raise RuntimeError(f"HTTP {response.status_code}: {body}")
+            async for chunk in _sse_payloads(response):
+                if chunk.get("usage"):
+                    usage.update(chunk["usage"])
+                choices = chunk.get("choices") or []
+                if choices:
+                    token = choices[0].get("delta", {}).get("content")
+                    if token:
+                        yield token
+
+
+async def _stream_anthropic(spec, prompt, history, usage, api_key) -> AsyncGenerator[str]:
+    payload = {
+        "model": vendor_model(spec),
+        "max_tokens": MAX_OUTPUT_TOKENS,
+        "stream": True,
+        "messages": [*history, {"role": "user", "content": prompt}],
+    }
+    async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT) as client:
+        async with client.stream(
+            "POST",
+            f"{spec['base_url']}/messages",
+            json=payload,
+            headers={
+                "x-api-key": api_key,
+                "anthropic-version": "2023-06-01",
+            },
+        ) as response:
+            if response.status_code >= 400:
+                body = (await response.aread()).decode("utf-8", "replace")[:300]
+                raise RuntimeError(f"HTTP {response.status_code}: {body}")
+            async for event in _sse_payloads(response):
+                kind = event.get("type", "")
+                if kind == "content_block_delta":
+                    token = event.get("delta", {}).get("text")
+                    if token:
+                        yield token
+                elif kind == "message_delta":
+                    if event.get("usage", {}).get("output_tokens") is not None:
+                        usage["output_tokens"] = event["usage"]["output_tokens"]
+                        usage["completion_tokens"] = event["usage"]["output_tokens"]
+
+
+async def _stream_gemini(spec, prompt, history, usage, api_key) -> AsyncGenerator[str]:
+    # Gemini history shape: {role, parts: [{text}]}
+    contents = [
+        {"role": "model" if m["role"] == "assistant" else "user",
+         "parts": [{"text": m["content"]}]}
+        for m in history
+    ]
+    contents.append({"role": "user", "parts": [{"text": prompt}]})
+    url = (
+        f"{spec['base_url']}/models/{vendor_model(spec)}:streamGenerateContent"
+        f"?alt=sse&key={api_key}"
+    )
+    payload = {"contents": contents, "generationConfig": {"maxOutputTokens": MAX_OUTPUT_TOKENS}}
+    async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT) as client:
+        async with client.stream("POST", url, json=payload) as response:
+            if response.status_code >= 400:
+                body = (await response.aread()).decode("utf-8", "replace")[:300]
+                raise RuntimeError(f"HTTP {response.status_code}: {body}")
+            async for chunk in _sse_payloads(response):
+                if chunk.get("usageMetadata"):
+                    usage["completion_tokens"] = chunk["usageMetadata"].get(
+                        "candidatesTokenCount"
+                    )
+                candidates = chunk.get("candidates") or []
+                if candidates:
+                    parts = candidates[0].get("content", {}).get("parts") or []
+                    for part in parts:
+                        token = part.get("text")
+                        if token:
+                            yield token
+
+
+# ---------------------------------------------------------------------------
+# Key validation (BYOK Fix 1): one cheap REAL call before saving anything.
+# ---------------------------------------------------------------------------
+VALIDATION_TIMEOUT = float(_env("CHAT_KEYCHECK_TIMEOUT_SECONDS", "8"))
+
+
+def validate_key(spec: dict, api_key: str, client=None) -> tuple[bool, str]:
+    """Confirm the key authenticates with the provider before it is stored.
+
+    Returns (ok, message). Strategies, cheapest first:
+      * openai / groq (OpenAI-compatible): GET {base}/models — auth only,
+        generates nothing.
+      * gemini: GET {base}/models?key= — same idea on Google's API.
+      * anthropic: no free auth-only endpoint in wide use, so the smallest
+        possible real call: a 1-token-max message (spec'd by the upgrade).
+
+    401/403 => rejected. 2xx (and 429: rate-limited but *authenticated*)
+    => accepted. Transport errors/timeouts => "could not reach" (saves
+    nothing — an unverified key is exactly the mid-chat failure this
+    validation exists to prevent).
+    """
+    if _testing_key_validator is not None:  # testing seam
+        return _testing_key_validator(spec, api_key)
+
+    import httpx
+
+    owns = client is None
+    client = client or httpx.Client(timeout=VALIDATION_TIMEOUT)
+    provider = spec["provider"]
+    try:
+        if provider in ("openai", "groq"):
+            response = client.get(
+                f"{spec['base_url']}/models",
+                headers={"Authorization": f"Bearer {api_key}"},
+            )
+        elif provider == "gemini":
+            response = client.get(
+                f"{spec['base_url']}/models", params={"key": api_key}
+            )
+        elif provider == "anthropic":
+            response = client.post(
+                f"{spec['base_url']}/messages",
+                headers={
+                    "x-api-key": api_key,
+                    "anthropic-version": "2023-06-01",
+                },
+                json={
+                    "model": vendor_model(spec),
+                    "max_tokens": 1,
+                    "messages": [{"role": "user", "content": "hi"}],
+                },
+            )
+        else:  # pragma: no cover - registry is closed today
+            return True, ""
+
+        if response.status_code in (401, 403):
+            return False, f"That key was rejected by {provider} — check it and try again."
+        if response.status_code >= 500:
+            return False, f"{provider} returned HTTP {response.status_code} while checking the key — try again."
+        return True, ""  # 2xx, 429 and other 4xx-with-auth-passed are good enough
+    except httpx.HTTPError:
+        return False, f"Could not reach {provider} to verify the key — try again in a moment."
+    finally:
+        if owns:
+            client.close()
+
+
+def estimate_tokens(text: str) -> int:
+    """Fallback when a provider doesn't stream usage: ~4 chars/token."""
+    return max(1, len(text) // 4)

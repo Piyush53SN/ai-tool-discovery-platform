@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Same mark as the navbar brand: signal-orange square + three dark bars.
+       Drawn as vectors (not the "≡" text glyph) so it stays crisp at 16px.
+       Colors match frontend tokens: --accent #ff4e1a, --accent-ink #160905. -->
+  <rect width="32" height="32" rx="3" fill="#ff4e1a"/>
+  <g fill="#160905">
+    <rect x="7" y="9.2"  width="18" height="3.4" rx="1.2"/>
+    <rect x="7" y="14.3" width="18" height="3.4" rx="1.2"/>
+    <rect x="7" y="19.4" width="18" height="3.4" rx="1.2"/>
+  </g>
+</svg>
