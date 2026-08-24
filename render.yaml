@@ -1,0 +1,38 @@
+# Render blueprint for the Django API.
+#
+# Apply with the Render CLI (optional — the same service can be created in
+# the dashboard; DEPLOY.md documents both paths):
+#
+#   render --blueprint render.yaml up
+#
+# The Postgres database is intentionally NOT declared here: it lives on
+# Supabase (which is where the pgvector `vector` extension gets enabled),
+# and its connection string is set as the DATABASE_URL env var.
+
+services:
+  - type: web
+    name: ai-tool-api
+    runtime: docker
+    plan: starter
+    healthCheckPath: /api/
+    autoDeploy: true
+    envVars:
+      # Generated once by Render; keep it stable — rotating it invalidates
+      # JWTs and BYOK-encrypted Model Lab keys.
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      # The Render host of this service, e.g. ai-tool-api.onrender.com
+      - key: ALLOWED_HOSTS
+        sync: false
+      # The Netlify site origin, e.g. https://my-ai-tools.netlify.app
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      # Supabase connection string (session pooler, port 6543, see DEPLOY.md)
+      - key: DATABASE_URL
+        sync: false
+      # Real MiniLM embeddings instead of the lightweight hash backend
+      # (also pass INSTALL_MLM=1 as a Docker build arg).
+      - key: EMBEDDING_BACKEND
+        value: auto

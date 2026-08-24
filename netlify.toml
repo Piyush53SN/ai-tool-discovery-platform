@@ -1,0 +1,27 @@
+# Netlify configuration — serves the React SPA (the "one link").
+#
+# The Django API does NOT live here; it runs on Render and Postgres (with
+# pgvector) runs on Supabase. See DEPLOY.md for the full walkthrough.
+#
+# Build env var to set in Netlify (Site settings → Build & environment →
+# Environment variables):
+#
+#   VITE_API_BASE = https://<your-service>.onrender.com
+#
+# It is baked into the SPA at build time (frontend/src/api.js) and points the
+# browser's fetch() calls at the Render API. The backend must then list this
+# site's URL in CORS_ALLOWED_ORIGINS.
+#
+# Netlify auto-detects everything below from this file, so in the dashboard
+# you only need: "New site from Git" + the VITE_API_BASE env var.
+
+[build]
+  command = "cd frontend && npm ci && npm run build"
+  publish = "frontend/dist"
+
+# Single-page app: any unknown path serves the SPA shell, which the
+# React Router then resolves client-side.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

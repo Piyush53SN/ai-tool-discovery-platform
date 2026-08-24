@@ -42,3 +42,4 @@ npm-debug.log*
 
 # --- Sandbox helpers (local demo infra, not part of the project) ---
 /pgdata/
+.pgdata/

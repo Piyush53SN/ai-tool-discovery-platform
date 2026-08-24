@@ -3,11 +3,15 @@
  *
  * - JWT access token attached automatically
  * - a single queued refresh on 401 (concurrent 401s share one refresh call)
- * - relative URLs only: the Vite dev server proxies /api to Django, so the
- *   browser never crosses origins
+ * - In development the Vite dev server proxies /api to Django, so the browser
+ *   never crosses origins.
+ * - In production (Netlify + Render) the build sets VITE_API_BASE to the
+ *   Render API origin (https://…onrender.com); the API is then called
+ *   cross-origin and CORS must allow the Netlify origin on the backend.
  */
 
-const BASE = '/api'
+const API_ORIGIN = import.meta.env.VITE_API_BASE ?? ''
+const BASE = `${API_ORIGIN}/api`
 const ACCESS_KEY = 'aitools.access'
 const REFRESH_KEY = 'aitools.refresh'
 

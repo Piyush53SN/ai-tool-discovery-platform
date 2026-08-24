@@ -43,6 +43,17 @@ Embedding jobs — sentence-transformers (all-MiniLM-L6-v2)
 
 ---
 
+## Hosting it online (one shareable link)
+
+Want a public URL anyone can open and try? **`DEPLOY.md`** walks through the
+10–15 minute setup on **Netlify** (React SPA) + **Render** (Django API,
+Docker) + **Supabase** (Postgres with the pgvector `vector` extension) —
+all the config is already in this repo (`netlify.toml`, `Dockerfile`,
+`.dockerignore`, `render.yaml`). Only paid piece: the Render web service
+(~$7/mo). The result is a single link — `https://<site>.netlify.app` —
+with a seeded 127-tool catalog and a ready demo login
+(`demo` / `demo-pass-123`).
+
 ## Quickstart
 
 ### 0. Zero-install option — GitHub Codespaces (browser preview, no local setup)
